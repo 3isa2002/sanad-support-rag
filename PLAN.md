@@ -49,7 +49,9 @@ embedding model are served by Ollama, and no data leaves the machine.
   chunk's relevance is below a threshold, hand off before calling the LLM;
   (2) generation — the model is told to output a `HANDOFF` marker when the
   context does not contain the answer, and answers without a valid citation are
-  treated as handoffs.
+  treated as handoffs. The retrieval threshold defaults per embedder
+  (`bge-m3`: 0.45, hash: 0.25) because cosine ranges differ; override with
+  `SANAD_MIN_SCORE`.
 - **ID formats:** orders look like `ORD-10023`, listings like `LST-5001`; bare
   numbers next to "order/اوردر/طلب" or "listing/إعلان" are also accepted.
 - **Sample knowledge base:** realistic but fictional policies for a fictional
@@ -70,7 +72,7 @@ embedding model are served by Ollama, and no data leaves the machine.
   context in the user's language, citing `[1]`, `[2]`; response includes
   structured sources.
 - **Human handoff** — low retrieval confidence, model `HANDOFF`, missing
-  citations, backend errors, or an explicit "talk to a human" request create a
+  citations, LLM or backend errors, or an explicit "talk to a human" request create a
   ticket in SQLite and return a polite bilingual message with the ticket ID.
 - **Backend tools** — order status and listing status lookups through an HTTP
   client against a configurable backend; includes a mock backend service.
@@ -137,7 +139,8 @@ embedding model are served by Ollama, and no data leaves the machine.
 - **HandoffTicket** (SQLite `handoffs`): `id` (e.g. `HT-000012`), `created_at`,
   `conversation_id`, `language`, `question`, `reason`
   (`human_requested` | `low_confidence` | `model_uncertain` | `no_citation` |
-  `backend_error` | `not_found`), `context` (JSON), `status` (`open`).
+  `llm_error` | `backend_error`). An unknown order/listing ID is *not* a handoff:
+  the customer is asked to re-check the number, `context` (JSON), `status` (`open`).
 - **Order** (backend): `id`, `status`, `items`, `total`, `currency`,
   `created_at`, `estimated_delivery`, `tracking_number`, `last_update`.
 - **Listing** (backend): `id`, `title`, `status`
@@ -187,13 +190,13 @@ sanad-support-rag/
 returns a returns-policy chunk first.
 
 ### Phase 2 — Grounded answers, citations and handoff
-- [ ] Ollama chat client (+ fake LLM for tests)
-- [ ] Grounded bilingual prompt with numbered context and `HANDOFF` rule
-- [ ] Citation parsing → structured sources; uncited answers → handoff
-- [ ] Retrieval confidence threshold → handoff before generation
-- [ ] Explicit human-request detection (ar/en)
-- [ ] SQLite handoff ticket store
-- [ ] CLI: `sanad ask`
+- [x] Ollama chat client (+ fake LLM for tests)
+- [x] Grounded bilingual prompt with numbered context and `HANDOFF` rule
+- [x] Citation parsing → structured sources; uncited answers → handoff
+- [x] Retrieval confidence threshold → handoff before generation
+- [x] Explicit human-request detection (ar/en)
+- [x] SQLite handoff ticket store
+- [x] CLI: `sanad ask`
 **Done when:** tests cover answered, low-confidence, model-uncertain, no-citation
 and human-requested paths; `sanad ask` with the fake LLM returns an answer with
 sources.

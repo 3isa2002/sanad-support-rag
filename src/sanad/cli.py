@@ -34,6 +34,21 @@ def cmd_search(settings: Settings, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_ask(settings: Settings, args: argparse.Namespace) -> int:
+    from .factory import build_assistant
+
+    response = build_assistant(settings).answer(args.question)
+    if args.json:
+        print(json.dumps(response.model_dump(), ensure_ascii=False, indent=2))
+        return 0
+    print(response.answer)
+    for i, s in enumerate(response.sources, 1):
+        print(f"  [{i}] {s.title} › {s.section}  {s.url}")
+    if response.handoff:
+        print(f"  → handoff {response.handoff.ticket_id} ({response.handoff.reason})")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="sanad", description="Sanad — bilingual support assistant")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -44,12 +59,17 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("query")
     p.add_argument("-k", type=int, default=4)
 
+    p = sub.add_parser("ask", help="Ask Sanad a question")
+    p.add_argument("question")
+    p.add_argument("--json", action="store_true", help="Print the full JSON response")
+
     return parser
 
 
 COMMANDS = {
     "ingest": cmd_ingest,
     "search": cmd_search,
+    "ask": cmd_ask,
 }
 
 

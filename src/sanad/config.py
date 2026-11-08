@@ -23,6 +23,11 @@ def _load_dotenv(path: Path = Path(".env")) -> None:
         os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
 
+# Cosine-similarity thresholds below which retrieval is considered too weak to answer.
+# The hash embedder produces lower similarities than a real semantic model.
+DEFAULT_MIN_SCORE = {"hash": 0.25, "ollama": 0.45}
+
+
 @dataclass
 class Settings:
     ollama_base_url: str = field(default_factory=lambda: _env("OLLAMA_BASE_URL", "http://localhost:11434"))
@@ -34,11 +39,19 @@ class Settings:
     index_dir: Path = field(default_factory=lambda: Path(_env("SANAD_INDEX_DIR", "data/index")))
     db_path: Path = field(default_factory=lambda: Path(_env("SANAD_DB_PATH", "data/sanad.db")))
     top_k: int = field(default_factory=lambda: int(_env("SANAD_TOP_K", "4")))
-    min_score: float = field(default_factory=lambda: float(_env("SANAD_MIN_SCORE", "0.35")))
+    # Minimum dense similarity of the best chunk; None → per-embedder default.
+    min_score: float | None = field(
+        default_factory=lambda: float(os.environ["SANAD_MIN_SCORE"]) if os.environ.get("SANAD_MIN_SCORE") else None
+    )
     backend_url: str = field(default_factory=lambda: _env("SANAD_BACKEND_URL", "http://localhost:8001"))
     backend_api_key: str = field(default_factory=lambda: _env("SANAD_BACKEND_API_KEY", ""))
     backend_timeout: float = field(default_factory=lambda: float(_env("SANAD_BACKEND_TIMEOUT", "5")))
     llm_timeout: float = field(default_factory=lambda: float(_env("SANAD_LLM_TIMEOUT", "120")))
+
+    def effective_min_score(self, embedder_name: str) -> float:
+        if self.min_score is not None:
+            return self.min_score
+        return DEFAULT_MIN_SCORE["hash" if embedder_name.startswith("hash") else "ollama"]
 
     @classmethod
     def from_env(cls) -> "Settings":

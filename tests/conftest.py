@@ -23,3 +23,20 @@ def chunks():
 @pytest.fixture(scope="session")
 def index(chunks, embedder):
     return HybridIndex.build(chunks, embedder)
+
+
+@pytest.fixture
+def handoffs():
+    from sanad.handoff import HandoffStore
+
+    return HandoffStore(":memory:")
+
+
+@pytest.fixture
+def make_assistant(index, embedder, handoffs):
+    from sanad.assistant import Assistant
+
+    def _make(llm, tools=None, min_score=0.25):
+        return Assistant(index, embedder, llm, handoffs, top_k=4, min_score=min_score, tools=tools)
+
+    return _make
