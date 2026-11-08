@@ -217,13 +217,15 @@ sources.
 "فين الاوردر ORD-10023؟" returns the real status from the mock.
 
 ### Phase 4 — HTTP API, web chat and Docker
-- [ ] FastAPI app: `/chat`, `/handoffs`, `/admin/reindex`, `/health`
-- [ ] Minimal RTL-aware chat page at `/`
-- [ ] `sanad serve` command
-- [ ] Dockerfile + `docker-compose.yml` (ollama, sanad, mock backend)
+- [x] FastAPI app: `/chat`, `/handoffs`, `/admin/reindex`, `/health` (tickets + reindex behind `SANAD_ADMIN_TOKEN`)
+- [x] Minimal RTL-aware chat page at `/`
+- [x] `sanad serve` command
+- [x] Dockerfile + `docker-compose.yml` (ollama, sanad, mock backend)
 **Done when:** API tests pass with `TestClient`; server boots locally and `/chat`
-answers with the hash embedder + fake LLM. Docker Compose is written but not
-verified here (no Docker / Ollama in the build environment).
+answers with the hash embedder + fake LLM. *Verified here:* the image builds
+and `sanad ingest` / `sanad ask` run inside it, and `docker compose config` is
+valid. *Not verified:* the full compose stack with Ollama (ollama.com is
+unreachable from the build environment, so models can't be pulled).
 
 ### Phase 5 — Evaluation and polish
 - [ ] Golden question set (ar + en, answerable + should-handoff)

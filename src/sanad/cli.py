@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import sys
 
 from .config import Settings
@@ -49,6 +50,16 @@ def cmd_ask(settings: Settings, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_serve(settings: Settings, args: argparse.Namespace) -> int:
+    import uvicorn
+
+    from .api import create_app
+
+    logging.basicConfig(level=logging.INFO)
+    uvicorn.run(create_app(settings), host=args.host or settings.host, port=args.port or settings.port)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="sanad", description="Sanad — bilingual support assistant")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -63,6 +74,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("question")
     p.add_argument("--json", action="store_true", help="Print the full JSON response")
 
+    p = sub.add_parser("serve", help="Run the HTTP API and web chat")
+    p.add_argument("--host")
+    p.add_argument("--port", type=int)
+
     return parser
 
 
@@ -70,6 +85,7 @@ COMMANDS = {
     "ingest": cmd_ingest,
     "search": cmd_search,
     "ask": cmd_ask,
+    "serve": cmd_serve,
 }
 
 

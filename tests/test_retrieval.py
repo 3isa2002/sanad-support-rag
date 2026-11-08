@@ -79,3 +79,9 @@ def test_ollama_embedder_error_is_helpful():
     client = httpx.Client(base_url="http://ollama", transport=httpx.MockTransport(lambda r: httpx.Response(404)))
     with pytest.raises(RuntimeError, match="ollama pull bge-m3"):
         OllamaEmbedder("http://ollama", "bge-m3", client=client).embed(["a"])
+
+
+def test_hash_embedder_ignores_punctuation_and_diacritics():
+    emb = HashEmbedder()
+    a, b = emb.embed(["ازاي أرجّع منتج؟", "ازاي ارجع منتج"])
+    assert np.allclose(a, b)

@@ -1,0 +1,53 @@
+# Full local stack: Ollama + model pull + mock marketplace backend + Sanad.
+#   docker compose up --build      → open http://localhost:8000
+# For GPU acceleration on Linux, uncomment the `deploy` block under `ollama`.
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports: ["11434:11434"]
+    volumes: ["ollama:/root/.ollama"]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices: [{ driver: nvidia, count: all, capabilities: [gpu] }]
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    depends_on: [ollama]
+    environment:
+      OLLAMA_HOST: ollama:11434
+    entrypoint: ["/bin/sh", "-c", "sleep 3 && ollama pull ${SANAD_CHAT_MODEL:-qwen2.5:7b} && ollama pull ${SANAD_EMBED_MODEL:-bge-m3}"]
+    restart: "no"
+
+  mock-backend:
+    build: .
+    command: ["python", "-m", "mock_backend"]
+    environment:
+      MOCK_BACKEND_HOST: 0.0.0.0
+      MOCK_BACKEND_PORT: "8001"
+      MOCK_BACKEND_DATA: /app/data/mock_backend
+      MOCK_BACKEND_API_KEY: ${SANAD_BACKEND_API_KEY:-change-me}
+    ports: ["8001:8001"]
+
+  sanad:
+    build: .
+    depends_on:
+      ollama-pull:
+        condition: service_completed_successfully
+      mock-backend:
+        condition: service_started
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      SANAD_CHAT_MODEL: ${SANAD_CHAT_MODEL:-qwen2.5:7b}
+      SANAD_EMBED_MODEL: ${SANAD_EMBED_MODEL:-bge-m3}
+      SANAD_BACKEND_URL: http://mock-backend:8001
+      SANAD_BACKEND_API_KEY: ${SANAD_BACKEND_API_KEY:-change-me}
+      SANAD_ADMIN_TOKEN: ${SANAD_ADMIN_TOKEN:-change-me}
+      SANAD_INDEX_DIR: /app/state/index
+      SANAD_DB_PATH: /app/state/sanad.db
+    volumes: ["sanad-state:/app/state"]
+    ports: ["8000:8000"]
+
+volumes:
+  ollama:
+  sanad-state:

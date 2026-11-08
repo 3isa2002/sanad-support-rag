@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sanad · سَنَد</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --text:#1d2330; --muted:#6b7280; --accent:#0f766e; --user:#e6f4f1; --warn:#fff4e5; --border:#e5e7eb; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1115; --card:#181b22; --text:#e7e9ee; --muted:#9aa1ad; --accent:#2dd4bf; --user:#123532; --warn:#3a2a12; --border:#2a2f3a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, "Segoe UI", Tahoma, "Noto Sans Arabic", sans-serif; background:var(--bg); color:var(--text); }
+  main { max-width: 760px; margin: 0 auto; min-height: 100vh; display:flex; flex-direction:column; padding: 16px; }
+  header h1 { margin: 8px 0 2px; font-size: 1.4rem; }
+  header p { margin: 0 0 12px; color: var(--muted); font-size: .9rem; }
+  #log { flex:1; display:flex; flex-direction:column; gap:10px; padding-bottom: 12px; }
+  .msg { padding:10px 14px; border-radius:12px; max-width: 90%; white-space: pre-wrap; line-height:1.55; border:1px solid var(--border); background:var(--card); }
+  .msg.user { align-self:flex-start; background:var(--user); }
+  .msg.bot { align-self:flex-end; }
+  .msg.handoff { background: var(--warn); }
+  .meta { margin-top:8px; font-size:.8rem; color:var(--muted); }
+  .meta a { color: var(--accent); }
+  .tag { display:inline-block; padding:1px 8px; border-radius:999px; border:1px solid var(--border); margin-inline-end:4px; }
+  form { display:flex; gap:8px; position: sticky; bottom: 0; background: var(--bg); padding: 8px 0; }
+  input { flex:1; padding:12px; border-radius:10px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:1rem; }
+  button { padding: 0 18px; border:0; border-radius:10px; background:var(--accent); color:#fff; font-size:1rem; cursor:pointer; }
+  button:disabled { opacity:.6; cursor:wait; }
+  .examples { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+  .examples button { background:var(--card); color:var(--text); border:1px solid var(--border); padding:6px 10px; font-size:.85rem; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>سَنَد · Sanad</h1>
+    <p>مساعد خدمة العملاء — بيرد من سياسات المتجر ومعاه المصدر · Support assistant with cited answers</p>
+  </header>
+  <div class="examples" id="examples"></div>
+  <div id="log" aria-live="polite"></div>
+  <form id="form">
+    <input id="input" dir="auto" autocomplete="off" placeholder="اكتب سؤالك… / Type your question…" maxlength="2000">
+    <button id="send" type="submit">إرسال</button>
+  </form>
+</main>
+<script>
+  const EXAMPLES = ["ازاي أرجّع منتج؟", "فين الاوردر ORD-10023؟", "How long does a card refund take?",
+                    "إعلاني LST-5003 اترفض ليه؟", "عايز أكلم موظف"];
+  const log = document.getElementById("log"), form = document.getElementById("form");
+  const input = document.getElementById("input"), send = document.getElementById("send");
+  const conversationId = "web-" + Math.random().toString(36).slice(2, 10);
+
+  function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  function addMessage(text, who, extra) {
+    const m = el("div", "msg " + who, text);
+    m.dir = "auto";
+    if (extra) m.appendChild(extra);
+    log.appendChild(m);
+    m.scrollIntoView({ behavior: "smooth", block: "end" });
+    return m;
+  }
+
+  function renderMeta(res) {
+    const meta = el("div", "meta");
+    (res.sources || []).forEach((s, i) => {
+      const line = el("div");
+      line.appendChild(el("span", null, `[${i + 1}] `));
+      const a = el("a", null, `${s.title} › ${s.section}`);
+      if (s.url) { a.href = s.url; a.target = "_blank"; a.rel = "noopener"; }
+      line.appendChild(a);
+      meta.appendChild(line);
+    });
+    (res.tool_calls || []).forEach(t => meta.appendChild(el("span", "tag", `${t.name}(${t.arguments.id}) ${t.ok ? "✓" : "✗"}`)));
+    if (res.handoff) meta.appendChild(el("span", "tag", `handoff · ${res.handoff.reason}`));
+    return meta.childNodes.length ? meta : null;
+  }
+
+  async function ask(text) {
+    addMessage(text, "user");
+    send.disabled = true;
+    try {
+      const r = await fetch("/chat", { method: "POST", headers: { "Content-Type": "application/json" },
+                                       body: JSON.stringify({ message: text, conversation_id: conversationId }) });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const res = await r.json();
+      addMessage(res.answer, "bot" + (res.handoff ? " handoff" : ""), renderMeta(res));
+    } catch (e) {
+      addMessage("حصلت مشكلة في الاتصال · Connection error: " + e.message, "bot handoff");
+    } finally { send.disabled = false; input.focus(); }
+  }
+
+  form.addEventListener("submit", e => { e.preventDefault(); const t = input.value.trim(); if (t) { input.value = ""; ask(t); } });
+  const ex = document.getElementById("examples");
+  EXAMPLES.forEach(t => { const b = el("button", null, t); b.type = "button"; b.dir = "auto"; b.onclick = () => ask(t); ex.appendChild(b); });
+</script>
+</body>
+</html>

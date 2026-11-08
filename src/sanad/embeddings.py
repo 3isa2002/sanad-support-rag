@@ -8,7 +8,7 @@ from typing import Protocol
 import httpx
 import numpy as np
 
-from .textnorm import normalize
+from .textnorm import tokenize
 
 
 class Embedder(Protocol):
@@ -54,8 +54,8 @@ class OllamaEmbedder:
 
 class HashEmbedder:
     """Deterministic, dependency-free embedder based on hashed character n-grams
-    of normalized text. Not semantic, but robust to Arabic morphology and
-    good enough for tests and offline demos."""
+    of normalized tokens (stopwords dropped, punctuation ignored). Not semantic,
+    but robust to Arabic morphology and good enough for tests and offline demos."""
 
     def __init__(self, dim: int = 512, ngram: tuple[int, ...] = (3, 4)):
         self.dim = dim
@@ -64,7 +64,7 @@ class HashEmbedder:
 
     def _vector(self, text: str) -> np.ndarray:
         vec = np.zeros(self.dim, dtype=np.float32)
-        for word in normalize(text).split():
+        for word in tokenize(text):
             padded = f" {word} "
             for n in self.ngram:
                 for i in range(max(1, len(padded) - n + 1)):
