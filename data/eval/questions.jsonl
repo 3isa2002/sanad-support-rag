@@ -1,0 +1,37 @@
+{"question": "ازاي أرجّع منتج؟", "expect": "answer", "doc": "returns-policy-ar"}
+{"question": "قدامي كام يوم عشان أرجّع موبايل اشتريته؟", "expect": "answer", "doc": "returns-policy-ar"}
+{"question": "الفلوس بترجع امتى لو كنت دافع بالكارت؟", "expect": "answer", "doc": "returns-policy-ar"}
+{"question": "استلمت المنتج مكسور أعمل ايه؟", "expect": "answer", "doc": "returns-policy-ar"}
+{"question": "ينفع أرجّع كارت هدية؟", "expect": "answer", "doc": "returns-policy-ar"}
+{"question": "How many days do I have to return an item?", "expect": "answer", "doc": "returns-policy-en"}
+{"question": "When will I get my refund for a card payment?", "expect": "answer", "doc": "returns-policy-en"}
+{"question": "I received the wrong item, what should I do?", "expect": "answer", "doc": "returns-policy-en"}
+{"question": "مصاريف الشحن كام؟", "expect": "answer", "doc": "shipping-ar"}
+{"question": "الطلب بياخد قد ايه عشان يوصل اسكندرية؟", "expect": "answer", "doc": "shipping-ar"}
+{"question": "ينفع أغيّر العنوان بعد ما طلبت؟", "expect": "answer", "doc": "shipping-ar"}
+{"question": "Is shipping free?", "expect": "answer", "doc": "shipping-en"}
+{"question": "What happens if the courier can't deliver my order?", "expect": "answer", "doc": "shipping-en"}
+{"question": "ايه الأسباب اللي ممكن تخلي الإعلان يترفض؟", "expect": "answer", "doc": "listing-rules-ar"}
+{"question": "الإعلان بيفضل منشور قد ايه؟", "expect": "answer", "doc": "listing-rules-ar"}
+{"question": "ينفع أبيع أدوية على الموقع؟", "expect": "answer", "doc": "listing-rules-ar"}
+{"question": "What are the photo requirements for listings?", "expect": "answer", "doc": "listing-rules-en"}
+{"question": "How long does listing review take?", "expect": "answer", "doc": "listing-rules-en"}
+{"question": "ينفع أقسّط الطلب؟", "expect": "answer", "doc": "payments-ar"}
+{"question": "الدفع فشل بس الفلوس اتخصمت من الكارت", "expect": "answer", "doc": "payments-ar"}
+{"question": "Can I withdraw my wallet balance as cash?", "expect": "answer", "doc": "payments-en"}
+{"question": "What payment methods do you accept?", "expect": "answer", "doc": "payments-en"}
+{"question": "نسيت كلمة السر", "expect": "answer", "doc": "account-safety-ar"}
+{"question": "عايز أمسح حسابي", "expect": "answer", "doc": "account-safety-ar"}
+{"question": "Someone asked me for my OTP code, is that Souqna?", "expect": "answer", "doc": "account-safety-en"}
+{"question": "What is the capital of France?", "expect": "handoff"}
+{"question": "عايز أعرف سعر الدولار النهارده", "expect": "handoff"}
+{"question": "Can you recommend a good laptop for gaming?", "expect": "handoff"}
+{"question": "ايه أحسن مطعم في المعادي؟", "expect": "handoff"}
+{"question": "Write me a poem about the sea", "expect": "handoff"}
+{"question": "عايز أكلم موظف", "expect": "handoff"}
+{"question": "Can I talk to a human agent?", "expect": "handoff"}
+{"question": "فين الاوردر ORD-10023؟", "expect": "tool", "tool": "get_order_status"}
+{"question": "Where is my order ORD-10027?", "expect": "tool", "tool": "get_order_status"}
+{"question": "الطلب رقم ١٠٠٢٥ وصل لفين؟", "expect": "tool", "tool": "get_order_status"}
+{"question": "إعلاني LST-5003 اترفض ليه؟", "expect": "tool", "tool": "get_listing_status"}
+{"question": "What's the status of listing LST-5002?", "expect": "tool", "tool": "get_listing_status"}

@@ -54,7 +54,7 @@ embedding model are served by Ollama, and no data leaves the machine.
   (2) generation — the model is told to output a `HANDOFF` marker when the
   context does not contain the answer, and answers without a valid citation are
   treated as handoffs. The retrieval threshold defaults per embedder
-  (`bge-m3`: 0.45, hash: 0.25) because cosine ranges differ; override with
+  (`bge-m3`: 0.45, hash: 0.15 — tuned with `sanad eval`) because cosine ranges differ; override with
   `SANAD_MIN_SCORE`.
 - **ID formats:** orders look like `ORD-10023`, listings like `LST-5001`; bare
   numbers next to "order/اوردر/طلب" or "listing/إعلان" are also accepted.
@@ -228,9 +228,9 @@ valid. *Not verified:* the full compose stack with Ollama (ollama.com is
 unreachable from the build environment, so models can't be pulled).
 
 ### Phase 5 — Evaluation and polish
-- [ ] Golden question set (ar + en, answerable + should-handoff)
-- [ ] `sanad eval`: retrieval hit@k and handoff precision/recall
-- [ ] README with setup, usage, examples, architecture
+- [x] Golden question set (ar + en, answerable + should-handoff)
+- [x] `sanad eval`: retrieval hit@k and handoff precision/recall
+- [x] README with setup, usage, examples, architecture
 **Done when:** `sanad eval` runs offline and prints metrics; README complete.
 
 ## Testing Strategy

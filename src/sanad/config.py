@@ -25,7 +25,7 @@ def _load_dotenv(path: Path = Path(".env")) -> None:
 
 # Cosine-similarity thresholds below which retrieval is considered too weak to answer.
 # The hash embedder produces lower similarities than a real semantic model.
-DEFAULT_MIN_SCORE = {"hash": 0.25, "ollama": 0.45}
+DEFAULT_MIN_SCORE = {"hash": 0.15, "ollama": 0.45}
 
 
 @dataclass

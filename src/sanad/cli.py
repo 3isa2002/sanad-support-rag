@@ -60,6 +60,46 @@ def cmd_serve(settings: Settings, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_eval(settings: Settings, args: argparse.Namespace) -> int:
+    from .assistant import Assistant
+    from .eval import evaluate, load_questions
+    from .handoff import HandoffStore
+    from .llm import make_llm
+    from .tools import BackendTools
+
+    embedder = make_embedder(settings)
+    index = HybridIndex.load(settings.index_dir, expected_embedder=embedder.name)
+    if args.live_backend:
+        from .factory import make_tools
+
+        tools = make_tools(settings)
+    else:  # in-process mock backend, so eval needs no running services
+        import warnings
+
+        warnings.filterwarnings("ignore", message="Using `httpx` with")
+        from fastapi.testclient import TestClient
+
+        from mock_backend.app import create_app
+        from .backend import BackendClient
+
+        tools = BackendTools(BackendClient("http://testserver", client=TestClient(create_app(api_key=""))))
+    min_score = args.min_score if args.min_score is not None else settings.effective_min_score(embedder.name)
+    assistant = Assistant(
+        index, embedder, make_llm(settings), HandoffStore(":memory:"),
+        top_k=settings.top_k, min_score=min_score, tools=tools,
+    )
+    report = evaluate(assistant, load_questions(args.file))
+    summary = report.summary()
+    print(f"embedder={embedder.name} llm={assistant.llm.name} min_score={min_score} top_k={settings.top_k}")
+    for key, value in summary.items():
+        print(f"  {key:<24} {value}")
+    if args.verbose and report.failures:
+        print("failures:")
+        for f in report.failures:
+            print("  -", json.dumps(f, ensure_ascii=False))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="sanad", description="Sanad — bilingual support assistant")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -78,6 +118,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--host")
     p.add_argument("--port", type=int)
 
+    p = sub.add_parser("eval", help="Evaluate on the golden question set")
+    p.add_argument("--file", default="data/eval/questions.jsonl")
+    p.add_argument("--min-score", type=float, default=None, help="Override the handoff threshold")
+    p.add_argument("--live-backend", action="store_true", help="Use SANAD_BACKEND_URL instead of the in-process mock")
+    p.add_argument("-v", "--verbose", action="store_true", help="List failures")
+
     return parser
 
 
@@ -86,6 +132,7 @@ COMMANDS = {
     "search": cmd_search,
     "ask": cmd_ask,
     "serve": cmd_serve,
+    "eval": cmd_eval,
 }
 
 
