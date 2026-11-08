@@ -19,11 +19,6 @@ Rules you must always follow:
 5. Be short and friendly: 1–4 sentences. Reply in the language requested.
 """
 
-TOOL_SYSTEM_PROMPT = """You are Sanad, the customer-support assistant of the Souqna online marketplace.
-Rewrite the system record inside <tool_result> as a short, friendly reply to the customer
-(1–3 sentences). Use only the facts in the record — do not add dates, amounts or promises
-that are not there. Reply in the language requested."""
-
 
 def format_context(results: list[SearchResult]) -> str:
     blocks = []
@@ -42,10 +37,3 @@ def grounded_messages(question: str, results: list[SearchResult], lang: str) -> 
     )
     return [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user}]
 
-
-def tool_messages(question: str, record: str, lang: str) -> list[dict[str, str]]:
-    user = (
-        f"<tool_result>\n{record}\n</tool_result>\n\n"
-        f"Customer question: {question}\n\nReply in {LANG_NAMES[lang]}."
-    )
-    return [{"role": "system", "content": TOOL_SYSTEM_PROMPT}, {"role": "user", "content": user}]

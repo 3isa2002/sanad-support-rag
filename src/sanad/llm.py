@@ -67,9 +67,6 @@ class ExtractiveLLM:
 
     def chat(self, messages: list[dict[str, str]]) -> str:
         user = messages[-1]["content"]
-        if "<tool_result>" in user:
-            data = user.split("<tool_result>", 1)[1].split("</tool_result>", 1)[0].strip()
-            return data
         passages = self._CONTEXT.findall(user.split("<context>", 1)[-1].split("</context>", 1)[0])
         if not passages:
             return "HANDOFF"

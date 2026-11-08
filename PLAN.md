@@ -43,8 +43,12 @@ embedding model are served by Ollama, and no data leaves the machine.
   knowledge base is hundreds of chunks, not millions; no vector DB needed.
 - **Tool routing is deterministic:** order / listing IDs are extracted with
   regexes (including Arabic-Indic digits) rather than relying on a 7B model's
-  function-calling, which is unreliable at that size. The LLM only phrases the
-  answer from the returned data, and a template fallback exists.
+  function-calling, which is unreliable at that size. Status replies are built
+  from bilingual templates over the backend record, so dates, tracking numbers
+  and statuses are never paraphrased (or invented) by the model. *(Changed in
+  phase 3: the original plan had the LLM phrase tool results; templates proved
+  simpler and safer.)* A status question without an ID ("where is my order?")
+  gets a request for the order number.
 - **Confidence gating** happens at two levels: (1) retrieval — if the best
   chunk's relevance is below a threshold, hand off before calling the LLM;
   (2) generation — the model is told to output a `HANDOFF` marker when the
@@ -110,22 +114,24 @@ embedding model are served by Ollama, and no data leaves the machine.
 | Packaging | `pyproject.toml`, Docker Compose | `pip install -e .` or `docker compose up` |
 
 ## Architecture
-```
-              ┌──────────────────────────── Sanad service (FastAPI) ───────────────────────────┐
- customer ──▶ │ /chat ─▶ language detect ─▶ router                                             │
-              │                              ├─ human requested? ──────────────▶ Handoff store │──▶ SQLite
-              │                              ├─ order/listing ID? ─▶ Backend client ─────────┐ │
-              │                              │                         (httpx) ──▶ Backend API│ │
-              │                              └─ else ─▶ Retriever (dense + BM25, RRF)        │ │
-              │                                            │ low score? ──▶ Handoff store    │ │
-              │                                            ▼                                 │ │
-              │                                        Generator ◀───────────────────────────┘ │
-              │                                     (Ollama chat, grounded prompt)             │
-              │                                            │ HANDOFF / no citation ─▶ Handoff  │
-              │                                            ▼                                   │
-              │                                answer + sources + tool_calls                   │
-              └────────────────────────────────────────────────────────────────────────────────┘
-   data/kb/*.md ──▶ ingest (chunk + embed + BM25) ──▶ data/index/{vectors.npy, chunks.json}
+```mermaid
+flowchart TD
+    U[Customer message] --> L[Detect language ar/en]
+    L --> H{Asks for a human?}
+    H -- yes --> T[(Handoff ticket<br/>SQLite)]
+    H -- no --> R{Order / listing ID?}
+    R -- yes --> B[Backend client<br/>httpx] --> API[(Marketplace API)]
+    B -- found --> TPL[Bilingual template reply]
+    B -- not found --> ASK[Ask to re-check the ID]
+    B -- backend down --> T
+    R -- "status intent, no ID" --> ID[Ask for the ID]
+    R -- no --> S[Hybrid retriever<br/>dense + BM25, RRF]
+    S -- best score below threshold --> T
+    S --> G[Ollama chat<br/>grounded prompt]
+    G -- "HANDOFF / no valid citation / error" --> T
+    G --> A[Answer + cited sources]
+    KB[data/kb/*.md] --> I[sanad ingest<br/>chunk + embed + BM25] --> IDX[(data/index)]
+    IDX --> S
 ```
 - **Ollama** runs on `OLLAMA_BASE_URL` (default `http://localhost:11434`).
 - **Backend API** at `SANAD_BACKEND_URL` (default the bundled mock on `:8001`).
@@ -202,11 +208,11 @@ and human-requested paths; `sanad ask` with the fake LLM returns an answer with
 sources.
 
 ### Phase 3 — Backend tools (order & listing status)
-- [ ] Mock backend FastAPI app with seed data
-- [ ] Backend HTTP client with timeouts and error mapping
-- [ ] Order / listing ID extraction (Latin + Arabic-Indic digits, ar/en keywords)
-- [ ] Status answers phrased in the user's language (LLM phrasing + template fallback)
-- [ ] Not-found and backend-down paths (not found → ask to check ID; down → handoff)
+- [x] Mock backend FastAPI app with seed data
+- [x] Backend HTTP client with timeouts and error mapping
+- [x] Order / listing ID extraction (Latin + Arabic-Indic digits, ar/en keywords)
+- [x] Status answers in the user's language from bilingual templates (no LLM involved)
+- [x] Not-found and backend-down paths (not found → ask to check ID; down → handoff)
 **Done when:** tests pass against the mock backend via `httpx` transport, and
 "فين الاوردر ORD-10023؟" returns the real status from the mock.
 

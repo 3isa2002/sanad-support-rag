@@ -1,0 +1,7 @@
+[
+  {"id": "LST-5001", "title": "Used iPhone 13, 128GB", "status": "active", "reason": null, "updated_at": "2026-11-01", "expires_at": "2026-12-31"},
+  {"id": "LST-5002", "title": "Wooden dining table", "status": "under_review", "reason": null, "updated_at": "2026-11-08", "expires_at": null},
+  {"id": "LST-5003", "title": "Gaming laptop RTX 4060", "status": "rejected", "reason": "contact_info", "updated_at": "2026-11-05", "expires_at": null},
+  {"id": "LST-5004", "title": "Kids bicycle", "status": "expired", "reason": null, "updated_at": "2026-09-01", "expires_at": "2026-10-31"},
+  {"id": "LST-5005", "title": "Vintage camera", "status": "rejected", "reason": "blurry_photos", "updated_at": "2026-11-06", "expires_at": null}
+]
