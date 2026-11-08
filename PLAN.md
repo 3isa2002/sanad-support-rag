@@ -176,13 +176,13 @@ sanad-support-rag/
 
 ## Phases
 ### Phase 1 — Scaffolding, KB and hybrid retrieval
-- [ ] `pyproject.toml`, package layout, `.env.example`, config
-- [ ] Arabic text normalization, tokenizer and language detection
-- [ ] Sample KB (Arabic + English policies) and heading-aware chunker
-- [ ] Embedders: Ollama `/api/embed` client and offline hash embedder
-- [ ] BM25 + dense index with RRF fusion, persisted to disk
-- [ ] CLI: `sanad ingest`, `sanad search`
-- [ ] Unit tests for normalization, chunking, BM25, retrieval
+- [x] `pyproject.toml`, package layout, `.env.example`, config
+- [x] Arabic text normalization, tokenizer and language detection
+- [x] Sample KB (Arabic + English policies) and heading-aware chunker
+- [x] Embedders: Ollama `/api/embed` client and offline hash embedder
+- [x] BM25 + dense index with RRF fusion, persisted to disk
+- [x] CLI: `sanad ingest`, `sanad search`
+- [x] Unit tests for normalization, chunking, BM25, retrieval
 **Done when:** `pytest` passes and `sanad search "ازاي ارجع منتج"` (hash embedder)
 returns a returns-policy chunk first.
 
