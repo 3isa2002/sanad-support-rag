@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sanad-api
+  namespace: sanad
+  labels:
+    app: sanad-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sanad-api
+  template:
+    metadata:
+      labels:
+        app: sanad-api
+    spec:
+      containers:
+        - name: sanad
+          image: sanad-support-rag:v3
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: sanad-config
+            - secretRef:
+                name: sanad-secrets
+          ports:
+            - containerPort: 8000
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sanad-svc
+  namespace: sanad
+spec:
+  type: NodePort
+  selector:
+    app: sanad-api
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30080
+      name: http

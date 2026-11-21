@@ -459,6 +459,7 @@ def invoke_sanad_graph(
     conversation_id: str | None = None,
     *,
     max_attempts: int = 1,
+    callbacks: list[Any] | None = None,
 ) -> AssistantResponse:
     """Execute one conversational turn through the compiled LangGraph workflow."""
     thread_id = conversation_id or f"anon-{uuid.uuid4().hex}"
@@ -472,5 +473,8 @@ def invoke_sanad_graph(
         "final_response": None,
         "agent_trace": ["__RESET__"],
     }
-    result = graph.invoke(initial_state, {"configurable": {"thread_id": thread_id}})
+    run_config: dict[str, Any] = {"configurable": {"thread_id": thread_id}}
+    if callbacks:
+        run_config["callbacks"] = callbacks
+    result = graph.invoke(initial_state, run_config)
     return result["final_response"]

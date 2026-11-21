@@ -21,6 +21,7 @@ from .qdrant_store import (
     load_or_build_vector_index,
     save_vector_index,
 )
+from .tracing import AgentTracer
 
 log = logging.getLogger("sanad")
 
@@ -42,8 +43,9 @@ def create_app(settings: Settings | None = None, assistant: Assistant | None = N
 
         assistant = build_assistant(settings, index=load_or_build_index(settings))
 
-    app = FastAPI(title="Sanad support assistant", version="0.2.0")
+    app = FastAPI(title="Sanad support assistant", version="0.3.0")
     app.state.assistant = assistant
+    default_tracer = assistant.tracer or AgentTracer.from_settings(settings)
     reindex_lock = threading.Lock()
 
     def require_admin(x_admin_token: str | None = Header(default=None)) -> None:
@@ -85,9 +87,20 @@ def create_app(settings: Settings | None = None, assistant: Assistant | None = N
             "vector_backend": settings.vector_backend,
         }
 
+    @app.get("/traces", dependencies=[Depends(require_admin)])
+    def list_traces(limit: int = Query(50, ge=1, le=500)) -> list[dict]:
+        tracer = app.state.assistant.tracer or default_tracer
+        return tracer.recent(limit=limit)
+
+    @app.get("/metrics")
+    def metrics() -> dict:
+        tracer = app.state.assistant.tracer or default_tracer
+        return tracer.summary_metrics()
+
     @app.get("/health")
     def health() -> dict:
         a = app.state.assistant
+        tracer = a.tracer or default_tracer
         llm_ok = a.llm.ping() if hasattr(a.llm, "ping") else True
         backend_ok = a.tools.client.ping() if a.tools is not None and hasattr(a.tools, "client") else None
         qdrant_ok = a.index.ping() if hasattr(a.index, "ping") else None
@@ -97,6 +110,7 @@ def create_app(settings: Settings | None = None, assistant: Assistant | None = N
             "embedder": a.embedder.name,
             "vector_backend": settings.vector_backend,
             "qdrant_reachable": qdrant_ok,
+            "tracing": tracer.backend,
             "index_chunks": len(a.index.chunks),
             "min_score": a.min_score,
             "backend_reachable": backend_ok,

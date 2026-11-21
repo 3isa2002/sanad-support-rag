@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mock-backend
+  namespace: sanad
+  labels:
+    app: mock-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mock-backend
+  template:
+    metadata:
+      labels:
+        app: mock-backend
+    spec:
+      containers:
+        - name: mock-backend
+          image: sanad-support-rag:v3
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "mock_backend"]
+          env:
+            - name: MOCK_BACKEND_HOST
+              value: "0.0.0.0"
+            - name: MOCK_BACKEND_PORT
+              value: "8001"
+            - name: MOCK_BACKEND_DATA
+              value: "/app/data/mock_backend"
+            - name: MOCK_BACKEND_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sanad-secrets
+                  key: SANAD_BACKEND_API_KEY
+          ports:
+            - containerPort: 8001
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mock-backend-svc
+  namespace: sanad
+spec:
+  selector:
+    app: mock-backend
+  ports:
+    - port: 8001
+      targetPort: 8001
+      name: http

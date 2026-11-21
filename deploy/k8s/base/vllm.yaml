@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-qwen
+  namespace: sanad
+  labels:
+    app: vllm-qwen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-qwen
+  template:
+    metadata:
+      labels:
+        app: vllm-qwen
+    spec:
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:latest
+          args:
+            - "--model"
+            - "Qwen/Qwen2.5-7B-Instruct"
+            - "--quantization"
+            - "bitsandbytes"
+            - "--dtype"
+            - "half"
+            - "--enable-lora"
+            - "--lora-modules"
+            - "sanad-qwen25-ft=3isa2002/qwen2.5-7b-sanad-arabic-qlora"
+            - "--max-model-len"
+            - "2048"
+            - "--gpu-memory-utilization"
+            - "0.90"
+            - "--port"
+            - "8000"
+          env:
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: sanad-secrets
+                  key: HF_TOKEN
+                  optional: true
+          ports:
+            - containerPort: 8000
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 90
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 20
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+              memory: "16Gi"
+            requests:
+              nvidia.com/gpu: 1
+              cpu: "2"
+              memory: "8Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-svc
+  namespace: sanad
+spec:
+  selector:
+    app: vllm-qwen
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http

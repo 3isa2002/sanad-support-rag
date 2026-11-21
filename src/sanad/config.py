@@ -35,6 +35,17 @@ class Settings:
     embed_model: str = field(default_factory=lambda: _env("SANAD_EMBED_MODEL", "bge-m3"))
     embedder: str = field(default_factory=lambda: _env("SANAD_EMBEDDER", "ollama"))
     llm: str = field(default_factory=lambda: _env("SANAD_LLM", "ollama"))
+    vllm_base_url: str = field(default_factory=lambda: _env("SANAD_VLLM_BASE_URL", "http://localhost:8002/v1"))
+    vllm_model: str = field(default_factory=lambda: _env("SANAD_VLLM_MODEL", "sanad-qwen25-ft"))
+    vllm_api_key: str = field(default_factory=lambda: _env("SANAD_VLLM_API_KEY", "EMPTY"))
+    tracing: str = field(default_factory=lambda: _env("SANAD_TRACING", "jsonl"))
+    trace_path: Path = field(default_factory=lambda: Path(_env("SANAD_TRACE_PATH", "data/traces.jsonl")))
+    langfuse_public_key: str = field(default_factory=lambda: _env("LANGFUSE_PUBLIC_KEY", ""))
+    langfuse_secret_key: str = field(default_factory=lambda: _env("LANGFUSE_SECRET_KEY", ""))
+    langfuse_base_url: str = field(
+        default_factory=lambda: os.environ.get("LANGFUSE_BASE_URL") or _env("LANGFUSE_HOST", "http://localhost:3000")
+    )
+    langsmith_project: str = field(default_factory=lambda: _env("LANGSMITH_PROJECT", "sanad-support-rag"))
     vector_backend: str = field(default_factory=lambda: _env("SANAD_VECTOR_BACKEND", "qdrant"))
     qdrant_url: str = field(default_factory=lambda: _env("SANAD_QDRANT_URL", ""))
     qdrant_path: Path | None = field(

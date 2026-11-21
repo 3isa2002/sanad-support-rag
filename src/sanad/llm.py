@@ -1,4 +1,4 @@
-"""Chat LLM providers: Ollama (default), an offline extractive fallback, and a scripted fake for tests."""
+"""Chat LLM providers: Ollama, OpenAI-compatible vLLM, extractive fallback, and scripted test double."""
 
 from __future__ import annotations
 
@@ -57,6 +57,53 @@ class OllamaChat:
             return False
 
 
+class OpenAICompatChat:
+    """OpenAI-compatible chat provider for vLLM / TGI (``POST /v1/chat/completions``)."""
+
+    def __init__(
+        self,
+        base_url: str,
+        model: str,
+        *,
+        api_key: str = "EMPTY",
+        timeout: float = 120.0,
+        temperature: float = 0.1,
+        max_tokens: int = 512,
+        provider_label: str = "vllm",
+        client: httpx.Client | None = None,
+    ):
+        self.model = model
+        self.name = f"{provider_label}:{model}"
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        normalized = base_url.rstrip("/") + "/"
+        headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+        self._client = client or httpx.Client(base_url=normalized, headers=headers, timeout=timeout)
+
+    def chat(self, messages: list[dict[str, str]]) -> str:
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+        }
+        try:
+            resp = self._client.post("chat/completions", json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+            return data["choices"][0]["message"]["content"].strip()
+        except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
+            raise LLMError(
+                f"vLLM chat request failed ({exc}). Is the OpenAI-compatible server running model '{self.model}'?"
+            ) from exc
+
+    def ping(self) -> bool:
+        try:
+            return self._client.get("models", timeout=3).status_code == 200
+        except httpx.HTTPError:
+            return False
+
+
 class ExtractiveLLM:
     """Offline stand-in for demos without Ollama: returns the most relevant context
     passage verbatim with a citation. Never invents text; if there is no context it
@@ -96,6 +143,13 @@ class ScriptedLLM:
 def make_llm(settings) -> ChatLLM:
     if settings.llm == "ollama":
         return OllamaChat(settings.ollama_base_url, settings.chat_model, settings.llm_timeout)
+    if settings.llm == "vllm":
+        return OpenAICompatChat(
+            settings.vllm_base_url,
+            settings.vllm_model,
+            api_key=settings.vllm_api_key,
+            timeout=settings.llm_timeout,
+        )
     if settings.llm in ("fake", "extractive"):
         return ExtractiveLLM()
-    raise ValueError(f"Unknown SANAD_LLM: {settings.llm!r} (use 'ollama' or 'fake')")
+    raise ValueError(f"Unknown SANAD_LLM: {settings.llm!r} (use 'ollama', 'vllm', or 'fake')")

@@ -17,6 +17,7 @@ dist/
 
 # Generated data
 data/index/
+data/traces.jsonl
 data/*.db
 *.db
 *.sqlite

@@ -208,6 +208,14 @@ def cmd_graph(settings: Settings, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_traces(settings: Settings, args: argparse.Namespace) -> int:
+    from .tracing import AgentTracer
+
+    tracer = AgentTracer.from_settings(settings)
+    print(json.dumps({"summary": tracer.summary_metrics(), "recent": tracer.recent(limit=args.limit)}, ensure_ascii=False, indent=2))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="sanad", description="Sanad — bilingual multi-agent support assistant")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -243,6 +251,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("graph", help="Print the Mermaid diagram of Sanad's LangGraph workflow")
 
+    p = sub.add_parser("traces", help="Inspect agent telemetry summary and recent traces")
+    p.add_argument("--limit", type=int, default=10)
+
     return parser
 
 
@@ -254,6 +265,7 @@ COMMANDS = {
     "eval": cmd_eval,
     "ragas": cmd_ragas,
     "graph": cmd_graph,
+    "traces": cmd_traces,
 }
 
 

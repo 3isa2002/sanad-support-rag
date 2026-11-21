@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sanad-config
+  namespace: sanad
+data:
+  SANAD_EMBEDDER: "ollama"
+  SANAD_EMBED_MODEL: "bge-m3"
+  OLLAMA_BASE_URL: "http://ollama-svc:11434"
+  SANAD_LLM: "vllm"
+  SANAD_VLLM_BASE_URL: "http://vllm-svc:8000/v1"
+  SANAD_VLLM_MODEL: "sanad-qwen25-ft"
+  SANAD_VECTOR_BACKEND: "qdrant"
+  SANAD_QDRANT_URL: "http://qdrant-svc:6333"
+  SANAD_QDRANT_COLLECTION: "sanad_kb"
+  SANAD_GROUNDING_RETRIES: "1"
+  SANAD_STRICT_GROUNDING: "true"
+  SANAD_TRACING: "jsonl"
+  SANAD_TRACE_PATH: "/app/state/traces.jsonl"
+  SANAD_BACKEND_URL: "http://mock-backend-svc:8001"
+  SANAD_INDEX_DIR: "/app/state/index"
+  SANAD_DB_PATH: "/app/state/sanad.db"

@@ -10,6 +10,7 @@ from .handoff import HandoffStore
 from .llm import make_llm
 from .qdrant_store import VectorIndex, load_vector_index
 from .tools import BackendTools
+from .tracing import AgentTracer
 
 
 def make_tools(settings: Settings) -> BackendTools:
@@ -31,4 +32,5 @@ def build_assistant(settings: Settings, *, index: VectorIndex | None = None, too
         grounding_retries=settings.grounding_retries,
         strict_grounding=settings.strict_grounding,
         llm_grounding_check=settings.llm_grounding_check,
+        tracer=AgentTracer.from_settings(settings),
     )

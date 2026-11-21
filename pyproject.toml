@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sanad-support-rag"
-version = "0.2.0"
-description = "Bilingual (Arabic/English) multi-agent RAG customer-support assistant using LangGraph, Qdrant, Ollama, and RAGAS."
+version = "0.3.0"
+description = "Production bilingual multi-agent RAG assistant with LangGraph, Qdrant, vLLM, Kubernetes, and Langfuse/LangSmith tracing."
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Mohamed Eissa" }]
@@ -21,8 +21,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+tracing = ["langfuse>=4.0"]
 eval = ["ragas>=0.4", "openai>=1.0"]
-dev = ["pytest>=8", "ragas>=0.4", "openai>=1.0"]
+dev = ["pytest>=8", "ragas>=0.4", "openai>=1.0", "langfuse>=4.0"]
 
 [project.scripts]
 sanad = "sanad.cli:main"
