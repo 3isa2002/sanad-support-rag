@@ -142,3 +142,23 @@ def test_benchmark_vllm_sse_streaming_parser(monkeypatch):
     assert res.output_tokens_per_sec > 0
     md = format_markdown({"base_url": "http://vllm.local/v1", "model": "sanad-qwen25-ft", "gpu": None, "results": [res.__dict__]})
     assert "vLLM Serving Benchmark Report" in md and "sanad-qwen25-ft" in md
+
+
+def test_api_cors_and_private_network_preflight(tmp_path, index, embedder, handoffs):
+    s = Settings()
+    s.kb_dir, s.index_dir, s.db_path = KB_DIR, tmp_path / "index", tmp_path / "sanad.db"
+    s.embedder, s.llm = "hash", "fake"
+    assistant = Assistant(index, embedder, ExtractiveLLM(), handoffs, min_score=0.15)
+    client = TestClient(create_app(s, assistant))
+
+    preflight = client.options(
+        "/chat",
+        headers={
+            "Origin": "https://mohamed-eissa.pages.dev",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Private-Network": "true",
+        },
+    )
+    assert preflight.status_code == 200
+    assert preflight.headers.get("access-control-allow-origin") in ("*", "https://mohamed-eissa.pages.dev")
+    assert preflight.headers.get("access-control-allow-private-network") == "true"

@@ -19,7 +19,7 @@ Sanad v3 runs a stateful **LangGraph** multi-agent workflow backed by **Qdrant**
 - **Production LLM Serving (`vLLM` + LoRA Hot-Loading & `Ollama`)**: `OpenAICompatChat` (`SANAD_LLM=vllm`) connects to **vLLM** serving `Qwen/Qwen2.5-7B-Instruct` (`bitsandbytes` 4-bit) with the fine-tuned [`3isa2002/qwen2.5-7b-sanad-arabic-qlora`](https://huggingface.co/3isa2002/qwen2.5-7b-sanad-arabic-qlora) adapter (`sanad-qwen25-ft`).
 - **Agent Observability & MLOps (`JSONL` / `Langfuse` / `LangSmith`)**: Every turn logs latency, route, citations, handoffs, and grounding issues to `data/traces.jsonl`, exposes `GET /traces` + `GET /metrics` (`p50`/`p95` latency, handoff rate) and `sanad traces`, and optionally streams LangGraph spans to **Langfuse** or **LangSmith**.
 - **GPU Docker & Kubernetes (`deploy/`)**: Includes GPU `deploy/vllm/Dockerfile`, `docker-compose.gpu.yml` (with optional `--profile langfuse`), and Kustomize Kubernetes manifests (`deploy/k8s/base` + `deploy/k8s/overlays/local-cpu`).
-- **Fully local and testable offline**: A hash embedder and extractive fallback LLM run all `97` tests without Ollama, vLLM, or Docker.
+- **Fully local and testable offline**: A hash embedder and extractive fallback LLM run all `98` tests without Ollama, vLLM, or Docker (includes 1-click Windows interview launcher `Start_Sanad_Interview_Demo.bat` with CORS support).
 - **Golden + RAGAS Evaluation**: `sanad eval` runs the `37`-question golden suite and `sanad ragas` measures **RAGAS** `Faithfulness` and `Answer Relevancy`.
 
 ## How it works
@@ -57,7 +57,7 @@ The original v1 design notes are preserved in [PLAN.md](PLAN.md).
 | API | FastAPI + Uvicorn, httpx |
 | Storage | Qdrant collection + SQLite for handoff tickets |
 | Evaluation | `sanad eval` (`37`-q) + **RAGAS** (`Faithfulness`, `AnswerRelevancy`) + `benchmark_vllm.py` |
-| Tests | `pytest` (`97` tests, zero network/Ollama/GPU required) |
+| Tests | `pytest` (`98` tests, zero network/Ollama/GPU required) |
 | Deploy | Docker Compose (`docker-compose.yml` + `docker-compose.gpu.yml`), `deploy/vllm/Dockerfile`, Kubernetes (`deploy/k8s/`) |
 
 ## Getting started
@@ -273,7 +273,7 @@ sanad-support-rag/
 │   ├── kb/             # Sample policies (Arabic + English)
 │   ├── mock_backend/   # Seed orders and listings
 │   └── eval/           # questions.jsonl + ragas_report.* + vllm_benchmark.*
-├── tests/              # 97 pytest tests (incl. Qdrant, LangGraph, RAGAS, vLLM & Tracing)
+├── tests/              # 98 pytest tests (incl. Qdrant, LangGraph, RAGAS, vLLM & Tracing)
 ├── Dockerfile, docker-compose.yml, docker-compose.gpu.yml
 └── PLAN.md
 ```
@@ -284,7 +284,7 @@ sanad-support-rag/
 pytest -q
 ```
 
-All `97` tests cover Arabic normalization, chunking, BM25, Qdrant hybrid RRF retrieval & persistence, LangGraph routing/self-correction/multi-turn memory, RAGAS Faithfulness & AnswerRelevancy scoring, `OpenAICompatChat` (`vLLM`), `AgentTracer` (`JSONL`/`Langfuse`/`LangSmith`), `benchmark_vllm` SSE streaming, backend tools, FastAPI endpoints, and golden eval regression checks without requiring Ollama, vLLM, or network access.
+All `98` tests cover Arabic normalization, chunking, BM25, Qdrant hybrid RRF retrieval & persistence, LangGraph routing/self-correction/multi-turn memory, RAGAS Faithfulness & AnswerRelevancy scoring, `OpenAICompatChat` (`vLLM`), `AgentTracer` (`JSONL`/`Langfuse`/`LangSmith`), `benchmark_vllm` SSE streaming, CORS/PNA preflight, backend tools, FastAPI endpoints, and golden eval regression checks without requiring Ollama, vLLM, or network access.
 
 ## Limitations
 

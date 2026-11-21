@@ -7,7 +7,8 @@ import secrets
 import threading
 from importlib.resources import files
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
@@ -44,6 +45,21 @@ def create_app(settings: Settings | None = None, assistant: Assistant | None = N
         assistant = build_assistant(settings, index=load_or_build_index(settings))
 
     app = FastAPI(title="Sanad support assistant", version="0.3.0")
+    origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()] or ["*"]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    @app.middleware("http")
+    async def allow_private_network_preflight(request: Request, call_next):
+        response = await call_next(request)
+        if request.headers.get("access-control-request-private-network") == "true":
+            response.headers["Access-Control-Allow-Private-Network"] = "true"
+        return response
+
     app.state.assistant = assistant
     default_tracer = assistant.tracer or AgentTracer.from_settings(settings)
     reindex_lock = threading.Lock()

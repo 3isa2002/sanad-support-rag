@@ -74,6 +74,7 @@ class Settings:
     backend_api_key: str = field(default_factory=lambda: _env("SANAD_BACKEND_API_KEY", ""))
     backend_timeout: float = field(default_factory=lambda: float(_env("SANAD_BACKEND_TIMEOUT", "5")))
     admin_token: str = field(default_factory=lambda: _env("SANAD_ADMIN_TOKEN", ""))
+    cors_origins: str = field(default_factory=lambda: _env("SANAD_CORS_ORIGINS", "*"))
     host: str = field(default_factory=lambda: _env("SANAD_HOST", "127.0.0.1"))
     port: int = field(default_factory=lambda: int(_env("SANAD_PORT", "8000")))
     llm_timeout: float = field(default_factory=lambda: float(_env("SANAD_LLM_TIMEOUT", "120")))
