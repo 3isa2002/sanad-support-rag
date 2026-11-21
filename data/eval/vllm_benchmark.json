@@ -1,0 +1,59 @@
+{
+  "base_url": "http://127.0.0.1:8002/v1",
+  "model": "sanad-qwen25-ft",
+  "lora_adapter": "3isa2002/qwen2.5-7b-sanad-arabic-qlora",
+  "base_model": "Qwen/Qwen2.5-7B-Instruct",
+  "quantization": "bitsandbytes",
+  "gpu": {
+    "gpu_name": "NVIDIA L4",
+    "vram_used_mb": 20934,
+    "vram_total_mb": 23034
+  },
+  "results": [
+    {
+      "concurrency": 1,
+      "total_requests": 6,
+      "succeeded": 6,
+      "failed": 0,
+      "wall_seconds": 17.56,
+      "requests_per_sec": 0.342,
+      "output_tokens_total": 457,
+      "output_tokens_per_sec": 26.03,
+      "ttft_p50_ms": 115.61,
+      "ttft_p95_ms": 135.75,
+      "latency_p50_ms": 3001.43,
+      "latency_p95_ms": 3307.98,
+      "latency_avg_ms": 2925.88
+    },
+    {
+      "concurrency": 4,
+      "total_requests": 12,
+      "succeeded": 12,
+      "failed": 0,
+      "wall_seconds": 9.811,
+      "requests_per_sec": 1.223,
+      "output_tokens_total": 943,
+      "output_tokens_per_sec": 96.12,
+      "ttft_p50_ms": 157.82,
+      "ttft_p95_ms": 182.97,
+      "latency_p50_ms": 3249.68,
+      "latency_p95_ms": 3592.71,
+      "latency_avg_ms": 3180.58
+    },
+    {
+      "concurrency": 8,
+      "total_requests": 24,
+      "succeeded": 24,
+      "failed": 0,
+      "wall_seconds": 10.768,
+      "requests_per_sec": 2.229,
+      "output_tokens_total": 1844,
+      "output_tokens_per_sec": 171.25,
+      "ttft_p50_ms": 197.43,
+      "ttft_p95_ms": 333.24,
+      "latency_p50_ms": 3566.1,
+      "latency_p95_ms": 4001.81,
+      "latency_avg_ms": 3525.92
+    }
+  ]
+}

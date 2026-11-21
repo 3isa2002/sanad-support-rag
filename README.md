@@ -1,7 +1,7 @@
-# Sanad (سَنَد) v2 — Multi-Agent Bilingual Support Assistant
+# Sanad (سَنَد) v3 — Production Multi-Agent Support Assistant
 
-A local, bilingual (Arabic / English) multi-agent customer-support assistant for an online marketplace.
-Sanad v2 upgrades the original linear RAG pipeline into a stateful **LangGraph** multi-agent workflow backed by **Qdrant** hybrid vector search (`bge-m3` dense + Okapi BM25 sparse + RRF), a deterministic **grounding & hallucination checker** with self-correction retries, live backend API tools, human handoff ticketing (SQLite), and **RAGAS** evaluation (`Faithfulness` & `Answer Relevancy`). Everything runs locally with **Ollama** (plus optional QLoRA adaptation from [`qwen2.5-sanad-arabic-qlora`](https://github.com/3isa2002/qwen2.5-sanad-arabic-qlora)).
+A production-ready, bilingual (Arabic / English) multi-agent customer-support assistant for an online marketplace.
+Sanad v3 runs a stateful **LangGraph** multi-agent workflow backed by **Qdrant** hybrid vector search (`bge-m3` dense + Okapi BM25 sparse + RRF), serves the Milestone 1 fine-tuned QLoRA adapter ([`3isa2002/qwen2.5-7b-sanad-arabic-qlora`](https://huggingface.co/3isa2002/qwen2.5-7b-sanad-arabic-qlora)) over **vLLM** (`OpenAI`-compatible GPU server) or **Ollama**, deploys via **Docker Compose (GPU)** and **Kubernetes** (`deploy/k8s/`), traces every request via **JSONL / Langfuse / LangSmith**, and benchmarks quality with **RAGAS** + **vLLM throughput/TTFT/VRAM** tooling.
 
 ![Sanad web chat](docs/screenshot.png)
 
@@ -16,7 +16,10 @@ Sanad v2 upgrades the original linear RAG pipeline into a stateful **LangGraph**
 - **Handoff instead of hallucination**: Sanad opens a ticket (SQLite) with the full `agent_trace` and context when retrieval confidence is low, grounding fails, the model replies `HANDOFF`, the LLM/backend fails, or the customer asks for a human.
 - **Backend tools**: order and listing IDs are detected deterministically (`ORD-10023`, `الطلب رقم ١٠٠٢٥`, `LST-5003`), then fetched from the backend API with multi-turn reference carry-over.
 - **HTTP API and web chat**: FastAPI `/chat` (with `trace` & `grounding_issues`), admin-protected `/handoffs` and `/admin/reindex`, `/health`, and an RTL-aware chat page at `/`.
-- **Fully local and testable offline**: Ollama for chat and embeddings (or fine-tuned [`3isa2002/qwen2.5-7b-sanad-arabic-qlora`](https://huggingface.co/3isa2002/qwen2.5-7b-sanad-arabic-qlora) adapter). A hash embedder and extractive fallback LLM run all `91` tests without Ollama or Docker.
+- **Production LLM Serving (`vLLM` + LoRA Hot-Loading & `Ollama`)**: `OpenAICompatChat` (`SANAD_LLM=vllm`) connects to **vLLM** serving `Qwen/Qwen2.5-7B-Instruct` (`bitsandbytes` 4-bit) with the fine-tuned [`3isa2002/qwen2.5-7b-sanad-arabic-qlora`](https://huggingface.co/3isa2002/qwen2.5-7b-sanad-arabic-qlora) adapter (`sanad-qwen25-ft`).
+- **Agent Observability & MLOps (`JSONL` / `Langfuse` / `LangSmith`)**: Every turn logs latency, route, citations, handoffs, and grounding issues to `data/traces.jsonl`, exposes `GET /traces` + `GET /metrics` (`p50`/`p95` latency, handoff rate) and `sanad traces`, and optionally streams LangGraph spans to **Langfuse** or **LangSmith**.
+- **GPU Docker & Kubernetes (`deploy/`)**: Includes GPU `deploy/vllm/Dockerfile`, `docker-compose.gpu.yml` (with optional `--profile langfuse`), and Kustomize Kubernetes manifests (`deploy/k8s/base` + `deploy/k8s/overlays/local-cpu`).
+- **Fully local and testable offline**: A hash embedder and extractive fallback LLM run all `97` tests without Ollama, vLLM, or Docker.
 - **Golden + RAGAS Evaluation**: `sanad eval` runs the `37`-question golden suite and `sanad ragas` measures **RAGAS** `Faithfulness` and `Answer Relevancy`.
 
 ## How it works
@@ -47,14 +50,15 @@ The original v1 design notes are preserved in [PLAN.md](PLAN.md).
 | Language | Python 3.11+ |
 | Agent Orchestration | **LangGraph** (`StateGraph`, conditional routing, `InMemorySaver` checkpointer) |
 | Vector DB | **Qdrant** (`qdrant-client`, dense + Okapi BM25 sparse vectors, native `Fusion.RRF`) |
-| LLM runtime | [Ollama](https://ollama.com) (`/api/chat`, `/api/embed`) |
-| Chat model | `qwen2.5:7b` (or fine-tuned [`3isa2002/qwen2.5-7b-sanad-arabic-qlora`](https://huggingface.co/3isa2002/qwen2.5-7b-sanad-arabic-qlora)) |
+| LLM runtime | **vLLM** (`OpenAI`-compatible GPU server, `bitsandbytes` + LoRA) or **Ollama** |
+| Chat model | `sanad-qwen25-ft` ([`3isa2002/qwen2.5-7b-sanad-arabic-qlora`](https://huggingface.co/3isa2002/qwen2.5-7b-sanad-arabic-qlora)) / `qwen2.5:7b` |
 | Embeddings | `bge-m3` (configurable; offline hash fallback) |
+| Observability | `AgentTracer` (**Langfuse**, **LangSmith**, or local `JSONL` spans + `/metrics`) |
 | API | FastAPI + Uvicorn, httpx |
 | Storage | Qdrant collection + SQLite for handoff tickets |
-| Evaluation | `sanad eval` (`37`-q golden set) + **RAGAS** (`Faithfulness`, `AnswerRelevancy`) |
-| Tests | `pytest` (`91` tests, zero network/Ollama required) |
-| Deploy | Dockerfile + Docker Compose (`ollama`, `qdrant`, `mock-backend`, `sanad`) |
+| Evaluation | `sanad eval` (`37`-q) + **RAGAS** (`Faithfulness`, `AnswerRelevancy`) + `benchmark_vllm.py` |
+| Tests | `pytest` (`97` tests, zero network/Ollama/GPU required) |
+| Deploy | Docker Compose (`docker-compose.yml` + `docker-compose.gpu.yml`), `deploy/vllm/Dockerfile`, Kubernetes (`deploy/k8s/`) |
 
 ## Getting started
 
@@ -98,10 +102,19 @@ export SANAD_EMBEDDER=hash SANAD_LLM=fake
 sanad ingest && sanad serve
 ```
 
-### Docker Compose
+### Docker Compose & Kubernetes
 
 ```bash
-docker compose up --build   # pulls the models on first run, then open http://localhost:8000
+# Local CPU/Ollama stack (Ollama + Qdrant + mock-backend + Sanad)
+docker compose up --build
+
+# Production GPU stack (vLLM + LoRA + Qdrant + Sanad, optional --profile langfuse)
+docker compose -f docker-compose.gpu.yml --profile langfuse up --build
+
+# Kubernetes (Kustomize)
+kubectl kustomize deploy/k8s/base
+kubectl apply -k deploy/k8s/base              # GPU cluster (includes vllm-qwen)
+kubectl apply -k deploy/k8s/overlays/local-cpu # CPU / Kind local verification
 ```
 
 ## Usage
@@ -147,7 +160,9 @@ curl -s localhost:8000/chat -H 'content-type: application/json' \
 | `GET /handoffs` | List handoff tickets (`?status=open&limit=50`). Requires the `X-Admin-Token` header. |
 | `GET /handoffs/{id}` | One ticket, with the retrieval context that led to it. Admin only. |
 | `POST /admin/reindex` | Re-read `data/kb/` and rebuild the index without a restart. Admin only. |
-| `GET /health` | Model names, whether Ollama and the backend are reachable, and the index size. |
+| `GET /traces` | Inspect recent `AgentTracer` spans (`?limit=50`). Admin only (`X-Admin-Token`). |
+| `GET /metrics` | Aggregated `p50`/`p95` latency, handoff rate, and route counts. |
+| `GET /health` | Model/vLLM/Ollama reachability, Qdrant status, tracing backend, and index size. |
 
 ### Evaluation (`sanad eval` + `sanad ragas`)
 
@@ -163,6 +178,18 @@ sanad graph   # print compiled LangGraph Mermaid topology
 | --- | ---: | ---: | ---: | ---: | ---: |
 | **Offline (`hash:512` + `extractive`)** | `1.00` | `0.96` | `0.875` | `1.00` | `1.00` |
 | **Live Ollama (`bge-m3` + `qwen2.5:7b`)** | `1.00` | `0.92` | `0.778` | `1.00` | `1.00` |
+| **Live vLLM (`hash:512` + `sanad-qwen25-ft` LoRA on L4)** | `1.00` | `0.92` | `0.857` | `1.00` | `1.00` |
+
+**vLLM Production Throughput & VRAM Benchmark (`NVIDIA L4`, `22.03 GB` VRAM, serving `Qwen2.5-7B-Instruct` `bitsandbytes` + `3isa2002/qwen2.5-7b-sanad-arabic-qlora` — [`data/eval/vllm_benchmark.md`](data/eval/vllm_benchmark.md)):**
+
+- **Peak GPU VRAM (`nvidia-smi`):** `20,934 / 23,034 MiB` (`90.9%` allocated for weights + PagedAttention KV cache)
+- **End-to-End `Sanad v3` Egyptian Arabic Query Latency (`sanad ask`):** `1,825.91 ms` (full LangGraph + Qdrant + vLLM LoRA)
+
+| Concurrency | Ok / Total | Req/s | Output Tokens/s | TTFT p50 (ms) | TTFT p95 (ms) | Latency p50 (ms) | Latency p95 (ms) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `1` | `6/6` | `0.342` | `26.03` | `115.61` | `135.75` | `3001.43` | `3307.98` |
+| `4` | `12/12` | `1.223` | `96.12` | `157.82` | `182.97` | `3249.68` | `3592.71` |
+| `8` | `24/24` | `2.229` | **`171.25`** | `197.43` | `333.24` | `3566.10` | `4001.81` |
 
 **RAGAS Benchmark (`n=25` answerable questions, `Qdrant` + `LangGraph` + live `Ollama qwen2.5:7b` & `bge-m3` — [`data/eval/ragas_report.md`](data/eval/ragas_report.md)):**
 
@@ -181,7 +208,9 @@ All settings come from environment variables or `.env`. See [.env.example](.env.
 |----------|---------|---------|
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server |
 | `SANAD_CHAT_MODEL` / `SANAD_EMBED_MODEL` | `qwen2.5:7b` / `bge-m3` | Models |
-| `SANAD_EMBEDDER` / `SANAD_LLM` | `ollama` / `ollama` | Set to `hash` / `fake` for offline mode |
+| `SANAD_EMBEDDER` / `SANAD_LLM` | `ollama` / `ollama` | `ollama`, `vllm`, `fake`, or `hash` |
+| `SANAD_VLLM_BASE_URL` / `SANAD_VLLM_MODEL` | `http://localhost:8002/v1` / `sanad-qwen25-ft` | OpenAI-compatible vLLM endpoint & model/LoRA ID |
+| `SANAD_TRACING` / `SANAD_TRACE_PATH` | `jsonl` / `data/traces.jsonl` | `jsonl`, `langfuse`, `langsmith`, or `none` |
 | `SANAD_VECTOR_BACKEND` | `qdrant` | `qdrant` (default) or legacy `numpy` |
 | `SANAD_QDRANT_URL` / `SANAD_QDRANT_PATH` | `""` / `data/index/qdrant` | Qdrant server URL (`http://qdrant:6333`) or local disk path |
 | `SANAD_GROUNDING_RETRIES` / `SANAD_STRICT_GROUNDING` | `1` / `true` | Self-correction retries and numeric grounding guard |
@@ -231,15 +260,21 @@ sanad-support-rag/
 │   ├── api.py          # FastAPI app (/chat, /handoffs, /admin/reindex, /health)
 │   ├── eval.py         # 37-question golden-set evaluation
 │   ├── ragas_eval.py   # RAGAS Faithfulness & AnswerRelevancy evaluator
-│   ├── cli.py          # `sanad` command (ingest/search/ask/serve/eval/ragas/graph)
+│   ├── tracing.py      # JSONL, Langfuse, and LangSmith agent telemetry
+│   ├── cli.py          # `sanad` command (ingest/search/ask/serve/eval/ragas/graph/traces)
 │   └── static/index.html
+├── deploy/
+│   ├── vllm/Dockerfile # GPU vLLM OpenAI server with QLoRA hot-loading
+│   └── k8s/            # Kustomize manifests (base GPU + overlays/local-cpu)
+├── notebooks/          # sanad_vllm_l4_benchmark.ipynb (Colab L4 vLLM benchmark)
+├── scripts/            # benchmark_vllm.py (async concurrency TTFT/TPS/VRAM)
 ├── mock_backend/       # Mock marketplace API (orders, listings)
 ├── data/
 │   ├── kb/             # Sample policies (Arabic + English)
 │   ├── mock_backend/   # Seed orders and listings
-│   └── eval/           # questions.jsonl + ragas_report.{json,md}
-├── tests/              # 91 pytest tests (incl. Qdrant, LangGraph & RAGAS)
-├── Dockerfile, docker-compose.yml
+│   └── eval/           # questions.jsonl + ragas_report.* + vllm_benchmark.*
+├── tests/              # 97 pytest tests (incl. Qdrant, LangGraph, RAGAS, vLLM & Tracing)
+├── Dockerfile, docker-compose.yml, docker-compose.gpu.yml
 └── PLAN.md
 ```
 
@@ -249,7 +284,7 @@ sanad-support-rag/
 pytest -q
 ```
 
-All `91` tests cover Arabic normalization, chunking, BM25, Qdrant hybrid RRF retrieval & persistence, LangGraph routing/self-correction/multi-turn memory, RAGAS Faithfulness & AnswerRelevancy scoring, backend tools, FastAPI endpoints, and golden eval regression checks without requiring Ollama or network access.
+All `97` tests cover Arabic normalization, chunking, BM25, Qdrant hybrid RRF retrieval & persistence, LangGraph routing/self-correction/multi-turn memory, RAGAS Faithfulness & AnswerRelevancy scoring, `OpenAICompatChat` (`vLLM`), `AgentTracer` (`JSONL`/`Langfuse`/`LangSmith`), `benchmark_vllm` SSE streaming, backend tools, FastAPI endpoints, and golden eval regression checks without requiring Ollama, vLLM, or network access.
 
 ## Limitations
 
@@ -262,7 +297,7 @@ All `91` tests cover Arabic normalization, chunking, BM25, Qdrant hybrid RRF ret
 
 - [x] **v1:** Hybrid NumPy+BM25 RAG, deterministic backend tools, SQLite handoffs, FastAPI + Docker Compose.
 - [x] **v2 (Milestone 2):** Dedicated **Qdrant** hybrid vector store, stateful **LangGraph** multi-agent workflow with grounding/hallucination self-correction, and **RAGAS** benchmark.
-- [ ] **v3 (Next — Milestone 3):** Serve the QLoRA fine-tuned Qwen model via **vLLM** (OpenAI-compatible GPU container), benchmark throughput/latency/VRAM, add **Kubernetes** manifests, and wire **Langfuse**/**LangSmith** tracing.
+- [x] **v3 (Milestone 3):** Serve the QLoRA fine-tuned Qwen model via **vLLM** (`171.25 tok/s` @ c=8, `20.9 GB` VRAM on Colab L4), add GPU Docker (`docker-compose.gpu.yml`), **Kubernetes** Kustomize manifests (`deploy/k8s/`), and **Langfuse**/**LangSmith**/`JSONL` agent tracing.
 - [ ] Cross-encoder re-ranker (`bge-reranker-v2-m3`) & authenticated order lookups.
 
 ## License
