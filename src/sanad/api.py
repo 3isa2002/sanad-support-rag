@@ -7,7 +7,7 @@ import secrets
 import threading
 from importlib.resources import files
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
@@ -51,15 +51,8 @@ def create_app(settings: Settings | None = None, assistant: Assistant | None = N
         allow_origins=origins,
         allow_methods=["*"],
         allow_headers=["*"],
+        allow_private_network=True,
     )
-
-    @app.middleware("http")
-    async def allow_private_network_preflight(request: Request, call_next):
-        response = await call_next(request)
-        if request.headers.get("access-control-request-private-network") == "true":
-            response.headers["Access-Control-Allow-Private-Network"] = "true"
-        return response
-
     app.state.assistant = assistant
     default_tracer = assistant.tracer or AgentTracer.from_settings(settings)
     reindex_lock = threading.Lock()
