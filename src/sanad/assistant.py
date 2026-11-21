@@ -51,6 +51,7 @@ class Assistant:
         grounding_retries: int = 0,
         strict_grounding: bool = False,
         llm_grounding_check: bool = False,
+        prompt_style: str = "default",
         tracer: AgentTracer | None = None,
     ):
         self.index = index
@@ -63,6 +64,7 @@ class Assistant:
         self.grounding_retries = max(0, grounding_retries)
         self.strict_grounding = strict_grounding
         self.llm_grounding_check = llm_grounding_check
+        self.prompt_style = prompt_style
         self.tracer = tracer
         self._graph = build_sanad_graph(self)
 

@@ -19,6 +19,15 @@ Rules you must always follow:
 5. Be short and friendly: 1–4 sentences. Reply in the language requested.
 """
 
+QLORA_SYSTEM_PROMPT = (
+    "You are Sanad, a bilingual customer-support assistant. Reply in natural Egyptian Arabic for "
+    "Arabic questions and clear English for English questions. Answer strictly from the provided "
+    "numbered context chunks [1], [2], ... and cite every factual claim inline using [n]. Never invent "
+    "policies, prices, timeframes, or order details. If the provided chunks do not contain enough "
+    "information to answer the question, respond strictly starting with 'HANDOFF | ' followed by a "
+    "short polite escalation message in the customer's language."
+)
+
 
 def format_context(results: list[SearchResult]) -> str:
     blocks = []
@@ -34,7 +43,21 @@ def grounded_messages(
     lang: str,
     *,
     retry_issues: list[str] | None = None,
+    prompt_style: str = "default",
 ) -> list[dict[str, str]]:
+    context_text = format_context(results)
+    if prompt_style == "qlora":
+        correction = ""
+        if retry_issues:
+            joined = "; ".join(retry_issues)
+            correction = (
+                f"\n\nIMPORTANT CORRECTION: Your previous draft failed verification ({joined}). "
+                "Answer strictly using facts and exact numbers from Context, cite passages inline like [1], "
+                f"or start with '{HANDOFF_MARKER} | '."
+            )
+        user = f"Context:\n{context_text}\n\nQuestion:\n{question}{correction}"
+        return [{"role": "system", "content": QLORA_SYSTEM_PROMPT}, {"role": "user", "content": user}]
+
     correction = ""
     if retry_issues:
         joined = "; ".join(retry_issues)
@@ -44,7 +67,7 @@ def grounded_messages(
             f"{LANG_NAMES[lang]}, and cite passages inline like [1]. If unsure, reply only {HANDOFF_MARKER}."
         )
     user = (
-        f"<context>\n{format_context(results)}\n</context>\n\n"
+        f"<context>\n{context_text}\n</context>\n\n"
         f"Customer question: {question}\n\n"
         f"Reply in {LANG_NAMES[lang]}. Cite passages like [1]. "
         f"If the context does not contain the answer, reply only {HANDOFF_MARKER}."

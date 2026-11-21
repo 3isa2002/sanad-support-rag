@@ -119,3 +119,51 @@ def test_langgraph_mermaid_export(index, embedder, handoffs):
     diagram = assistant.graph_mermaid()
     for node in ("router_agent", "tool_agent", "retriever_agent", "generator_agent", "grounding_checker"):
         assert node in diagram
+
+
+def test_check_grounding_extracts_arabic_prefixed_numbers(chunks, embedder, handoffs):
+    q_idx = QdrantVectorIndex.build(chunks, embedder, in_memory=True)
+    try:
+        llm = ScriptedLLM("المصاريف 35 جنيه في القاهرة و55 جنيه لباقي المحافظات [1].")
+        assistant = Assistant(q_idx, embedder, llm, handoffs, top_k=4, min_score=0.15, strict_grounding=True)
+        res = assistant.answer("مصاريف الشحن كام؟")
+        assert res.handoff is None
+        assert res.grounding_issues == []
+
+        bad_llm = ScriptedLLM("المصاريف بـ9999 جنيه [1].")
+        bad_assistant = Assistant(
+            q_idx, embedder, bad_llm, handoffs, top_k=4, min_score=0.15, grounding_retries=0, strict_grounding=True
+        )
+        bad_res = bad_assistant.answer("مصاريف الشحن كام؟")
+        assert bad_res.handoff is not None
+        assert bad_res.grounding_issues == ["ungrounded_numbers:['9999']"]
+    finally:
+        q_idx.close()
+
+
+def test_qlora_prompt_style_uses_training_template(chunks, embedder, handoffs):
+    q_idx = QdrantVectorIndex.build(chunks, embedder, in_memory=True)
+    try:
+        llm = ScriptedLLM(
+            "الشحن 35 جنيه بدون إشارة.",
+            "الشحن مجاني فوق 500 جنيه [1].",
+        )
+        assistant = Assistant(
+            q_idx,
+            embedder,
+            llm,
+            handoffs,
+            top_k=4,
+            min_score=0.15,
+            grounding_retries=1,
+            strict_grounding=True,
+            prompt_style="qlora",
+        )
+        res = assistant.answer("مصاريف الشحن كام؟")
+        assert res.handoff is None
+        assert "HANDOFF | " in llm.calls[0][0]["content"]
+        assert llm.calls[0][1]["content"].startswith("Context:\n[1]")
+        assert "\n\nQuestion:\nمصاريف الشحن كام؟" in llm.calls[0][1]["content"]
+        assert "IMPORTANT CORRECTION" in llm.calls[1][1]["content"]
+    finally:
+        q_idx.close()

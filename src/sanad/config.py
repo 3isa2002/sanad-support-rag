@@ -38,6 +38,7 @@ class Settings:
     vllm_base_url: str = field(default_factory=lambda: _env("SANAD_VLLM_BASE_URL", "http://localhost:8002/v1"))
     vllm_model: str = field(default_factory=lambda: _env("SANAD_VLLM_MODEL", "sanad-qwen25-ft"))
     vllm_api_key: str = field(default_factory=lambda: _env("SANAD_VLLM_API_KEY", "EMPTY"))
+    prompt_style: str = field(default_factory=lambda: _env("SANAD_PROMPT_STYLE", "auto"))
     tracing: str = field(default_factory=lambda: _env("SANAD_TRACING", "jsonl"))
     trace_path: Path = field(default_factory=lambda: Path(_env("SANAD_TRACE_PATH", "data/traces.jsonl")))
     langfuse_public_key: str = field(default_factory=lambda: _env("LANGFUSE_PUBLIC_KEY", ""))
@@ -86,6 +87,15 @@ class Settings:
         if self.min_score is not None:
             return self.min_score
         return DEFAULT_MIN_SCORE["hash" if embedder_name.startswith("hash") else "ollama"]
+
+    def effective_prompt_style(self) -> str:
+        """Select the QLoRA training prompt template automatically when serving the fine-tuned adapter."""
+        if self.prompt_style != "auto":
+            return self.prompt_style
+        model_name = self.vllm_model.lower()
+        if self.llm == "vllm" and ("sanad" in model_name or "qlora" in model_name):
+            return "qlora"
+        return "default"
 
     @classmethod
     def from_env(cls) -> "Settings":

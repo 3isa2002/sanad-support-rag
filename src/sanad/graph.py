@@ -30,7 +30,8 @@ if TYPE_CHECKING:
 _BRACKET_CITES = re.compile(r"\[[\d\s,،]+\]")
 _LIST_PREFIX = re.compile(r"(?m)^\s*\d+[\.\)]\s+")
 _COMMA_NUM = re.compile(r"(?<=\d),(?=\d)")
-_NUMBER = re.compile(r"\b\d+(?:\.\d+)?\b")
+# Avoid \b so Arabic attached prefixes/conjunctions like "و55" or "بـ35" still extract cleanly.
+_NUMBER = re.compile(r"(?<![A-Za-z0-9_.])\d+(?:\.\d+)?(?![A-Za-z0-9_.])")
 
 MAX_HISTORY_ITEMS = 6
 
@@ -253,6 +254,7 @@ def build_sanad_graph(assistant: "Assistant") -> Any:
                 results,
                 lang,
                 retry_issues=issues if attempts > 1 else None,
+                prompt_style=assistant.prompt_style,
             )
             reply = assistant.llm.chat(messages)
         except LLMError as exc:

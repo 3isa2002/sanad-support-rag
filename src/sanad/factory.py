@@ -32,5 +32,6 @@ def build_assistant(settings: Settings, *, index: VectorIndex | None = None, too
         grounding_retries=settings.grounding_retries,
         strict_grounding=settings.strict_grounding,
         llm_grounding_check=settings.llm_grounding_check,
+        prompt_style=settings.effective_prompt_style(),
         tracer=AgentTracer.from_settings(settings),
     )

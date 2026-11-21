@@ -122,6 +122,7 @@ def cmd_eval(settings: Settings, args: argparse.Namespace) -> int:
             grounding_retries=settings.grounding_retries,
             strict_grounding=settings.strict_grounding,
             llm_grounding_check=settings.llm_grounding_check,
+            prompt_style=settings.effective_prompt_style(),
         )
         report = evaluate(assistant, load_questions(args.file))
         summary = report.summary()
@@ -167,6 +168,7 @@ def cmd_ragas(settings: Settings, args: argparse.Namespace) -> int:
             tools=tools,
             grounding_retries=settings.grounding_retries,
             strict_grounding=settings.strict_grounding,
+            prompt_style=settings.effective_prompt_style(),
         )
         judge_model = args.judge_model or settings.ragas_model
         ragas_llm = OllamaStructuredRagasLLM(settings.ollama_base_url, judge_model, timeout=settings.llm_timeout)
