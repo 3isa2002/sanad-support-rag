@@ -1,6 +1,8 @@
 # GPU-enabled vLLM OpenAI-compatible container serving Qwen2.5-7B-Instruct + Sanad QLoRA adapter
 FROM vllm/vllm-openai:latest
 
+RUN pip install --no-cache-dir bitsandbytes vllm-bnb-plugin
+
 ENV VLLM_MODEL=Qwen/Qwen2.5-7B-Instruct \
     VLLM_LORA_MODULES=sanad-qwen25-ft=3isa2002/qwen2.5-7b-sanad-arabic-qlora \
     VLLM_QUANTIZATION=bitsandbytes \
