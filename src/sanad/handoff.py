@@ -14,6 +14,7 @@ REASONS = {
     "low_confidence",
     "model_uncertain",
     "no_citation",
+    "grounding_failed",
     "llm_error",
     "backend_error",
 }

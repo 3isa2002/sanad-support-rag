@@ -14,8 +14,13 @@ from pydantic import BaseModel, Field
 from .assistant import Assistant, AssistantResponse
 from .config import Settings
 from .embeddings import make_embedder
-from .index import HybridIndex
 from .kb import build_chunks
+from .qdrant_store import (
+    VectorIndex,
+    build_vector_index,
+    load_or_build_vector_index,
+    save_vector_index,
+)
 
 log = logging.getLogger("sanad")
 
@@ -25,15 +30,9 @@ class ChatRequest(BaseModel):
     conversation_id: str | None = Field(default=None, max_length=100)
 
 
-def load_or_build_index(settings: Settings) -> HybridIndex:
+def load_or_build_index(settings: Settings) -> VectorIndex:
     embedder = make_embedder(settings)
-    try:
-        return HybridIndex.load(settings.index_dir, expected_embedder=embedder.name)
-    except (FileNotFoundError, ValueError) as exc:
-        log.warning("%s — building the index from %s", exc, settings.kb_dir)
-        index = HybridIndex.build(build_chunks(settings.kb_dir), embedder)
-        index.save(settings.index_dir)
-        return index
+    return load_or_build_vector_index(settings, embedder)
 
 
 def create_app(settings: Settings | None = None, assistant: Assistant | None = None) -> FastAPI:
@@ -43,7 +42,7 @@ def create_app(settings: Settings | None = None, assistant: Assistant | None = N
 
         assistant = build_assistant(settings, index=load_or_build_index(settings))
 
-    app = FastAPI(title="Sanad support assistant", version="0.1.0")
+    app = FastAPI(title="Sanad support assistant", version="0.2.0")
     app.state.assistant = assistant
     reindex_lock = threading.Lock()
 
@@ -75,20 +74,29 @@ def create_app(settings: Settings | None = None, assistant: Assistant | None = N
     def reindex() -> dict:
         with reindex_lock:
             a = app.state.assistant
-            index = HybridIndex.build(build_chunks(settings.kb_dir), a.embedder)
-            index.save(settings.index_dir)
+            if hasattr(a.index, "close"):
+                a.index.close()
+            index = build_vector_index(settings, build_chunks(settings.kb_dir), a.embedder)
+            save_vector_index(index, settings.index_dir)
             a.index = index
-        return {"chunks": len(index.chunks), "documents": len({c.doc_id for c in index.chunks})}
+        return {
+            "chunks": len(index.chunks),
+            "documents": len({c.doc_id for c in index.chunks}),
+            "vector_backend": settings.vector_backend,
+        }
 
     @app.get("/health")
     def health() -> dict:
         a = app.state.assistant
         llm_ok = a.llm.ping() if hasattr(a.llm, "ping") else True
         backend_ok = a.tools.client.ping() if a.tools is not None and hasattr(a.tools, "client") else None
+        qdrant_ok = a.index.ping() if hasattr(a.index, "ping") else None
         return {
-            "status": "ok" if llm_ok and backend_ok is not False else "degraded",
+            "status": "ok" if llm_ok and backend_ok is not False and qdrant_ok is not False else "degraded",
             "llm": {"name": a.llm.name, "reachable": llm_ok},
             "embedder": a.embedder.name,
+            "vector_backend": settings.vector_backend,
+            "qdrant_reachable": qdrant_ok,
             "index_chunks": len(a.index.chunks),
             "min_score": a.min_score,
             "backend_reachable": backend_ok,

@@ -1,0 +1,538 @@
+{
+  "model": "ollama:qwen2.5:7b (judge=ollama:qwen2.5:7b)",
+  "embedder": "ollama:bge-m3",
+  "vector_backend": "qdrant",
+  "total_answerable": 25,
+  "evaluated_samples": 25,
+  "answered_count": 24,
+  "handoff_count": 1,
+  "mean_faithfulness": 0.7656,
+  "mean_answer_relevancy": 0.637,
+  "samples": [
+    {
+      "question": "ازاي أرجّع منتج؟",
+      "language": "ar",
+      "response": "فتح \"طلباتي\"، اختار الطلب، ودوس \"إرجاع المنتج\" واختار السبب [1].",
+      "retrieved_contexts": [
+        "افتح \"طلباتي\"، اختار الطلب، ودوس \"إرجاع المنتج\" واختار السبب. المندوب هييجي يستلم المنتج\nخلال 3 أيام عمل. خلي المنتج متغلّف وجاهز للاستلام.",
+        "تقدر ترجّع معظم المنتجات خلال 14 يوم من تاريخ الاستلام. الأجهزة الإلكترونية مدة إرجاعها 7 أيام بس.\nلازم يكون المنتج غير مستخدم وفي تغليفه الأصلي ومعاه كل الملحقات والفاتورة.",
+        "لو استلمت منتج تالف أو فيه عيب أو مختلف عن اللي طلبته، بلّغ خلال 48 ساعة من الاستلام مع صور.\nالشحن في الحالة دي مجاني وتقدر تختار استبدال أو استرداد كامل المبلغ.",
+        "بعد فحص المنتج والتأكد من حالته، الفلوس بترجع لنفس وسيلة الدفع. استرداد الكارت بياخد من 5 لـ 10 أيام عمل،\nالمحفظة بترجع فوراً، وطلبات الدفع عند الاستلام بترجع على محفظة سوقنا أو تحويل بنكي خلال 7 أيام عمل."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7553,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "قدامي كام يوم عشان أرجّع موبايل اشتريته؟",
+      "language": "ar",
+      "response": "يمكنك إرجاع الموبايل خلال 7 أيام من تاريخ الاستلام [1].",
+      "retrieved_contexts": [
+        "تقدر ترجّع معظم المنتجات خلال 14 يوم من تاريخ الاستلام. الأجهزة الإلكترونية مدة إرجاعها 7 أيام بس.\nلازم يكون المنتج غير مستخدم وفي تغليفه الأصلي ومعاه كل الملحقات والفاتورة.",
+        "ادخل الإعدادات ← الحساب ← حذف الحساب. الحذف بيبقى نهائي بعد 30 يوم، وتقدر تدخل على حسابك\nخلال المدة دي عشان تلغي الحذف. الحسابات اللي عليها طلبات مفتوحة مينفعش تتحذف.",
+        "افتح \"طلباتي\"، اختار الطلب، ودوس \"إرجاع المنتج\" واختار السبب. المندوب هييجي يستلم المنتج\nخلال 3 أيام عمل. خلي المنتج متغلّف وجاهز للاستلام.",
+        "الطلبات داخل القاهرة والجيزة بتوصل خلال 1 لـ 3 أيام عمل، وباقي المحافظات من 3 لـ 6 أيام عمل.\nالمنتجات اللي بيبيعها تجار تانيين ممكن تحتاج يوم أو يومين زيادة عشان توصل المخزن."
+      ],
+      "handed_off": false,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.684,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "الفلوس بترجع امتى لو كنت دافع بالكارت؟",
+      "language": "ar",
+      "response": "لو دفعت بالكارت، الفلوس بترجع لك في غضون 5 إلى 10 أيام عمل [1].",
+      "retrieved_contexts": [
+        "بعد فحص المنتج والتأكد من حالته، الفلوس بترجع لنفس وسيلة الدفع. استرداد الكارت بياخد من 5 لـ 10 أيام عمل،\nالمحفظة بترجع فوراً، وطلبات الدفع عند الاستلام بترجع على محفظة سوقنا أو تحويل بنكي خلال 7 أيام عمل.",
+        "لو عملية الدفع بالكارت فشلت والمبلغ اتخصم، غالباً البنك بيرجعه تلقائياً خلال 7 أيام عمل.\nلو مرجعش، كلّم خدمة العملاء برقم الطلب.",
+        "موظفين سوقنا عمرهم ما هيطلبوا منك كلمة السر أو رقم الكارت أو كود التأكيد. ادفع دايماً من جوه\nالتطبيق، ومتحوّلش فلوس لأي تاجر برّه سوقنا.",
+        "If a card payment failed but the amount was deducted, it is usually reversed automatically by\nyour bank within 7 business days. If it is not, contact support with the order number."
+      ],
+      "handed_off": false,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.7263,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "استلمت المنتج مكسور أعمل ايه؟",
+      "language": "ar",
+      "response": "لو استلمت المنتج مكسور، بلّغ خلال 48 ساعة من الاستلام مع صور، و可以选择一种语言 [2]。",
+      "retrieved_contexts": [
+        "افتح \"طلباتي\"، اختار الطلب، ودوس \"إرجاع المنتج\" واختار السبب. المندوب هييجي يستلم المنتج\nخلال 3 أيام عمل. خلي المنتج متغلّف وجاهز للاستلام.",
+        "لو استلمت منتج تالف أو فيه عيب أو مختلف عن اللي طلبته، بلّغ خلال 48 ساعة من الاستلام مع صور.\nالشحن في الحالة دي مجاني وتقدر تختار استبدال أو استرداد كامل المبلغ.",
+        "تقدر ترجّع معظم المنتجات خلال 14 يوم من تاريخ الاستلام. الأجهزة الإلكترونية مدة إرجاعها 7 أيام بس.\nلازم يكون المنتج غير مستخدم وفي تغليفه الأصلي ومعاه كل الملحقات والفاتورة.",
+        "If you received a damaged, defective or wrong item, report it within 48 hours of delivery with\nphotos. Return shipping is free in this case and you can choose a replacement or a full refund."
+      ],
+      "handed_off": false,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "ينفع أرجّع كارت هدية؟",
+      "language": "ar",
+      "response": "لا ينفع إرجاع كارت الهدايا إلا إذا وصل تالفة أو غلط [3]. لو كان هناك مشكلة، اتصل بخدمة العملاء [1].",
+      "retrieved_contexts": [
+        "لو عملية الدفع بالكارت فشلت والمبلغ اتخصم، غالباً البنك بيرجعه تلقائياً خلال 7 أيام عمل.\nلو مرجعش، كلّم خدمة العملاء برقم الطلب.",
+        "افتح \"طلباتي\"، اختار الطلب، ودوس \"إرجاع المنتج\" واختار السبب. المندوب هييجي يستلم المنتج\nخلال 3 أيام عمل. خلي المنتج متغلّف وجاهز للاستلام.",
+        "الملابس الداخلية، ملابس السباحة، مستحضرات التجميل المفتوحة، الأكل القابل للتلف، كروت الهدايا،\nوالمنتجات الرقمية لا يمكن إرجاعها إلا لو وصلت تالفة أو غلط.",
+        "بعد فحص المنتج والتأكد من حالته، الفلوس بترجع لنفس وسيلة الدفع. استرداد الكارت بياخد من 5 لـ 10 أيام عمل،\nالمحفظة بترجع فوراً، وطلبات الدفع عند الاستلام بترجع على محفظة سوقنا أو تحويل بنكي خلال 7 أيام عمل."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.0,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "How many days do I have to return an item?",
+      "language": "en",
+      "response": "You have 14 days to return most items, but electronics can be returned within 7 days [2].",
+      "retrieved_contexts": [
+        "Open \"My Orders\", choose the order, tap \"Return item\" and pick a reason. A courier will\ncollect the item within 3 business days. Keep the item packed and ready for pickup.",
+        "You can return most items within 14 days of delivery. Electronics have a 7-day return window.\nItems must be unused, in their original packaging, with all accessories and the invoice.",
+        "If you received a damaged, defective or wrong item, report it within 48 hours of delivery with\nphotos. Return shipping is free in this case and you can choose a replacement or a full refund.",
+        "After the item passes inspection, refunds are issued to the original payment method.\nCard refunds take 5–10 business days to appear; wallet refunds are instant;\ncash-on-delivery orders are refunded to your Souqna wallet or by bank transfer within 7 business days."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7906,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "When will I get my refund for a card payment?",
+      "language": "en",
+      "response": "Payments are typically reversed within 7 business days if a card payment fails but the amount was deducted [1]. Otherwise, card refunds usually appear within 5–10 business days [2].",
+      "retrieved_contexts": [
+        "If a card payment failed but the amount was deducted, it is usually reversed automatically by\nyour bank within 7 business days. If it is not, contact support with the order number.",
+        "After the item passes inspection, refunds are issued to the original payment method.\nCard refunds take 5–10 business days to appear; wallet refunds are instant;\ncash-on-delivery orders are refunded to your Souqna wallet or by bank transfer within 7 business days.",
+        "Tap \"Forgot password\" on the login screen and enter your phone number or email. You will get\na one-time code valid for 10 minutes.",
+        "If you received a damaged, defective or wrong item, report it within 48 hours of delivery with\nphotos. Return shipping is free in this case and you can choose a replacement or a full refund."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8621,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "I received the wrong item, what should I do?",
+      "language": "en",
+      "response": "Report it within 48 hours of delivery with photos and choose a replacement or a full refund [1].",
+      "retrieved_contexts": [
+        "If you received a damaged, defective or wrong item, report it within 48 hours of delivery with\nphotos. Return shipping is free in this case and you can choose a replacement or a full refund.",
+        "Open \"My Orders\", choose the order, tap \"Return item\" and pick a reason. A courier will\ncollect the item within 3 business days. Keep the item packed and ready for pickup.",
+        "Underwear, swimwear, cosmetics that have been opened, perishable food, gift cards and\ndigital products cannot be returned unless they arrived damaged or wrong.",
+        "لو استلمت منتج تالف أو فيه عيب أو مختلف عن اللي طلبته، بلّغ خلال 48 ساعة من الاستلام مع صور.\nالشحن في الحالة دي مجاني وتقدر تختار استبدال أو استرداد كامل المبلغ."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7748,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "مصاريف الشحن كام؟",
+      "language": "ar",
+      "response": "المصاريف 35 جنيه داخل القاهرة والجيزة و55 جنيه لباقي المحافظات [1].",
+      "retrieved_contexts": [
+        "الشحن مجاني للطلبات فوق 500 جنيه من المنتجات اللي عليها علامة \"شحن سوقنا\".\nغير كده المصاريف 35 جنيه داخل القاهرة والجيزة و55 جنيه لباقي المحافظات.",
+        "أول ما الطلب يتشحن هيوصلك SMS وإيميل فيه رقم التتبع. وتقدر تشوف حالة الطلب من \"طلباتي\"\nأو تسأل المساعد برقم الطلب (مثلاً ORD-10023).",
+        "الطلبات داخل القاهرة والجيزة بتوصل خلال 1 لـ 3 أيام عمل، وباقي المحافظات من 3 لـ 6 أيام عمل.\nالمنتجات اللي بيبيعها تجار تانيين ممكن تحتاج يوم أو يومين زيادة عشان توصل المخزن.",
+        "تقدر تغيّر العنوان طول ما حالة الطلب \"قيد التجهيز\". بعد الشحن مينفعش تغيّر العنوان، بس تقدر تطلب\nمن المندوب يأجل ميعاد التوصيل."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.5656,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "الطلب بياخد قد ايه عشان يوصل اسكندرية؟",
+      "language": "ar",
+      "response": "Alexandриة تبقي من المحافظات اللي بتحتاج 3 لـ 6 أيام عمل عشان يوصل الطلب [4]",
+      "retrieved_contexts": [
+        "المندوب بيحاول يوصّل الطلب مرتين. لو المحاولتين فشلوا، الطلب بيرجع للتاجر والمبلغ المدفوع\nمقدماً بيرجع على محفظتك خلال 3 أيام عمل.",
+        "الطلبات داخل القاهرة والجيزة بتوصل خلال 1 لـ 3 أيام عمل، وباقي المحافظات من 3 لـ 6 أيام عمل.\nالمنتجات اللي بيبيعها تجار تانيين ممكن تحتاج يوم أو يومين زيادة عشان توصل المخزن.",
+        "أول ما الطلب يتشحن هيوصلك SMS وإيميل فيه رقم التتبع. وتقدر تشوف حالة الطلب من \"طلباتي\"\nأو تسأل المساعد برقم الطلب (مثلاً ORD-10023).",
+        "Orders inside Cairo and Giza are delivered in 1–3 business days. Other governorates take\n3–6 business days. Items sold by third-party sellers may need 1–2 extra days to reach our warehouse."
+      ],
+      "handed_off": false,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.6287,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "ينفع أغيّر العنوان بعد ما طلبت؟",
+      "language": "ar",
+      "response": "لا ينفع تغيير العنوان بعد ما طلبت الطلب [1].",
+      "retrieved_contexts": [
+        "تقدر تغيّر العنوان طول ما حالة الطلب \"قيد التجهيز\". بعد الشحن مينفعش تغيّر العنوان، بس تقدر تطلب\nمن المندوب يأجل ميعاد التوصيل.",
+        "أشهر الأسباب: صور مش واضحة أو عليها علامة مائية، سعر ناقص، قسم غلط، وجود بيانات تواصل\n(أرقام تليفونات أو لينكات) في العنوان أو الوصف، أو منتجات ممنوعة. سبب الرفض بيظهر في صفحة\nالإعلان، صلّحه وابعته تاني للمراجعة.",
+        "ادخل الإعدادات ← الحساب ← حذف الحساب. الحذف بيبقى نهائي بعد 30 يوم، وتقدر تدخل على حسابك\nخلال المدة دي عشان تلغي الحذف. الحسابات اللي عليها طلبات مفتوحة مينفعش تتحذف.",
+        "You can change the address while the order status is \"Processing\". After it ships, the address\ncannot be changed, but you can ask the courier to reschedule the delivery."
+      ],
+      "handed_off": false,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.5902,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "Is shipping free?",
+      "language": "en",
+      "response": "Shipping is free for orders above 500 EGP from items marked \"Fulfilled by Souqna\" [1].",
+      "retrieved_contexts": [
+        "Shipping is free for orders above 500 EGP from items marked \"Fulfilled by Souqna\".\nOtherwise the fee is 35 EGP inside Cairo and Giza and 55 EGP for other governorates.",
+        "If you received a damaged, defective or wrong item, report it within 48 hours of delivery with\nphotos. Return shipping is free in this case and you can choose a replacement or a full refund.",
+        "الشحن مجاني للطلبات فوق 500 جنيه من المنتجات اللي عليها علامة \"شحن سوقنا\".\nغير كده المصاريف 35 جنيه داخل القاهرة والجيزة و55 جنيه لباقي المحافظات.",
+        "You can change the address while the order status is \"Processing\". After it ships, the address\ncannot be changed, but you can ask the courier to reschedule the delivery."
+      ],
+      "handed_off": false,
+      "faithfulness": 0.5,
+      "answer_relevancy": 0.6669,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "What happens if the courier can't deliver my order?",
+      "language": "en",
+      "response": "If the courier can't deliver your order, it will return to the seller, and prepaid amounts will be refunded to your wallet within 3 business days. [1]",
+      "retrieved_contexts": [
+        "The courier tries to deliver twice. If both attempts fail, the order returns to the seller and\nprepaid amounts are refunded to your wallet within 3 business days.",
+        "You can change the address while the order status is \"Processing\". After it ships, the address\ncannot be changed, but you can ask the courier to reschedule the delivery.",
+        "Open \"My Orders\", choose the order, tap \"Return item\" and pick a reason. A courier will\ncollect the item within 3 business days. Keep the item packed and ready for pickup.",
+        "Once your order ships you get an SMS and email with a tracking number. You can also see the\nlive status in \"My Orders\" or ask the assistant with your order number (for example ORD-10023)."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9963,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "ايه الأسباب اللي ممكن تخلي الإعلان يترفض؟",
+      "language": "ar",
+      "response": "[1] الإعلان قد يتراجع بسبب صور مش عارفه أو عليها علامة مائية، سعر ناقص، قسم غلط، أو وجود بيانات تواصل في العنوان أو الوصف، أو منتجات ممنوعة. [1]",
+      "retrieved_contexts": [
+        "أشهر الأسباب: صور مش واضحة أو عليها علامة مائية، سعر ناقص، قسم غلط، وجود بيانات تواصل\n(أرقام تليفونات أو لينكات) في العنوان أو الوصف، أو منتجات ممنوعة. سبب الرفض بيظهر في صفحة\nالإعلان، صلّحه وابعته تاني للمراجعة.",
+        "كل إعلان جديد أو متعدّل بيتراجع قبل ما يتنشر. المراجعة غالباً بتخلص خلال 24 ساعة،\nوطول ما الإعلان تحت المراجعة مش بيظهر للمشترين.",
+        "الإعلان بيفضل شغال 60 يوم. هيوصلك تنبيه قبل الانتهاء بـ 3 أيام وتقدر تجدده مجاناً من \"إعلاناتي\".",
+        "Common reasons: blurry or watermarked photos, missing price, wrong category, contact details\n(phone numbers or links) in the title or description, or prohibited items. The rejection\nreason is shown on the listing page; fix it and resubmit."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8093,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "الإعلان بيفضل منشور قد ايه؟",
+      "language": "ar",
+      "response": "إعلانك بيفضل شغال 60 يوم [1].",
+      "retrieved_contexts": [
+        "الإعلان بيفضل شغال 60 يوم. هيوصلك تنبيه قبل الانتهاء بـ 3 أيام وتقدر تجدده مجاناً من \"إعلاناتي\".",
+        "أشهر الأسباب: صور مش واضحة أو عليها علامة مائية، سعر ناقص، قسم غلط، وجود بيانات تواصل\n(أرقام تليفونات أو لينكات) في العنوان أو الوصف، أو منتجات ممنوعة. سبب الرفض بيظهر في صفحة\nالإعلان، صلّحه وابعته تاني للمراجعة.",
+        "كل إعلان جديد أو متعدّل بيتراجع قبل ما يتنشر. المراجعة غالباً بتخلص خلال 24 ساعة،\nوطول ما الإعلان تحت المراجعة مش بيظهر للمشترين.",
+        "الأسلحة، المخدرات والأدوية، المنتجات المقلدة، الحيوانات الحية، السجاير والتبغ، والمسروقات\nممنوع نشرها. تكرار المخالفات بيؤدي لإيقاف الحساب."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.0,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "ينفع أبيع أدوية على الموقع؟",
+      "language": "ar",
+      "response": "مش متأكد من الإجابة دي، فحوّلت سؤالك لحد من فريق خدمة العملاء وهيرد عليك في أقرب وقت. رقم التذكرة: HT-000001",
+      "retrieved_contexts": [
+        "الأسلحة، المخدرات والأدوية، المنتجات المقلدة، الحيوانات الحية، السجاير والتبغ، والمسروقات\nممنوع نشرها. تكرار المخالفات بيؤدي لإيقاف الحساب.",
+        "Weapons, drugs and medicines, counterfeit or replica goods, live animals, tobacco, and\nstolen goods are not allowed. Repeated violations lead to account suspension.",
+        "افتح \"طلباتي\"، اختار الطلب، ودوس \"إرجاع المنتج\" واختار السبب. المندوب هييجي يستلم المنتج\nخلال 3 أيام عمل. خلي المنتج متغلّف وجاهز للاستلام.",
+        "الإعلان بيفضل شغال 60 يوم. هيوصلك تنبيه قبل الانتهاء بـ 3 أيام وتقدر تجدده مجاناً من \"إعلاناتي\"."
+      ],
+      "handed_off": true,
+      "faithfulness": null,
+      "answer_relevancy": null,
+      "trace": [
+        "router",
+        "retriever",
+        "handoff"
+      ]
+    },
+    {
+      "question": "What are the photo requirements for listings?",
+      "language": "en",
+      "response": "Upload at least 2 clear photos, minimum 800×800 pixels, on a plain background, with no text, logos or watermarks [1][3].",
+      "retrieved_contexts": [
+        "Upload at least 2 clear photos, minimum 800×800 pixels, on a plain background, with no text,\nlogos or watermarks.",
+        "Listings stay active for 60 days. You will be notified 3 days before expiry and can renew\nthe listing for free from \"My Listings\".",
+        "ارفع صورتين على الأقل واضحين، بحد أدنى 800×800 بكسل، على خلفية سادة، من غير كتابة\nأو لوجوهات أو علامات مائية.",
+        "Common reasons: blurry or watermarked photos, missing price, wrong category, contact details\n(phone numbers or links) in the title or description, or prohibited items. The rejection\nreason is shown on the listing page; fix it and resubmit."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8136,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "How long does listing review take?",
+      "language": "en",
+      "response": "Listing review usually takes up to 24 hours [1].",
+      "retrieved_contexts": [
+        "Every new or edited listing is reviewed before it goes live. Reviews usually finish within\n24 hours. While under review the listing is not visible to buyers.",
+        "Listings stay active for 60 days. You will be notified 3 days before expiry and can renew\nthe listing for free from \"My Listings\".",
+        "Common reasons: blurry or watermarked photos, missing price, wrong category, contact details\n(phone numbers or links) in the title or description, or prohibited items. The rejection\nreason is shown on the listing page; fix it and resubmit.",
+        "Orders inside Cairo and Giza are delivered in 1–3 business days. Other governorates take\n3–6 business days. Items sold by third-party sellers may need 1–2 extra days to reach our warehouse."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8795,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "ينفع أقسّط الطلب؟",
+      "language": "ar",
+      "response": "يمكنك تقسيط الطلب إذا كان فوق 1,500 جنيه [2].",
+      "retrieved_contexts": [
+        "أول ما الطلب يتشحن هيوصلك SMS وإيميل فيه رقم التتبع. وتقدر تشوف حالة الطلب من \"طلباتي\"\nأو تسأل المساعد برقم الطلب (مثلاً ORD-10023).",
+        "الطلبات فوق 1,500 جنيه ممكن تتقسط من خلال البنوك وشركات التقسيط الشريكة.\nالأنظمة المتاحة بتظهر في صفحة الدفع.",
+        "لو عملية الدفع بالكارت فشلت والمبلغ اتخصم، غالباً البنك بيرجعه تلقائياً خلال 7 أيام عمل.\nلو مرجعش، كلّم خدمة العملاء برقم الطلب.",
+        "المندوب بيحاول يوصّل الطلب مرتين. لو المحاولتين فشلوا، الطلب بيرجع للتاجر والمبلغ المدفوع\nمقدماً بيرجع على محفظتك خلال 3 أيام عمل."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.5628,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "الدفع فشل بس الفلوس اتخصمت من الكارت",
+      "language": "ar",
+      "response": "الفلوس بترجع تلقائياً خلال 7 أيام عمل [1]. لو مرجعش، كلّم خدمة العملاء برقم الطلب.",
+      "retrieved_contexts": [
+        "لو عملية الدفع بالكارت فشلت والمبلغ اتخصم، غالباً البنك بيرجعه تلقائياً خلال 7 أيام عمل.\nلو مرجعش، كلّم خدمة العملاء برقم الطلب.",
+        "بعد فحص المنتج والتأكد من حالته، الفلوس بترجع لنفس وسيلة الدفع. استرداد الكارت بياخد من 5 لـ 10 أيام عمل،\nالمحفظة بترجع فوراً، وطلبات الدفع عند الاستلام بترجع على محفظة سوقنا أو تحويل بنكي خلال 7 أيام عمل.",
+        "موظفين سوقنا عمرهم ما هيطلبوا منك كلمة السر أو رقم الكارت أو كود التأكيد. ادفع دايماً من جوه\nالتطبيق، ومتحوّلش فلوس لأي تاجر برّه سوقنا.",
+        "بنقبل الكروت (فيزا، ماستركارد، ميزة)، محفظة سوقنا، المحافظ الإلكترونية على الموبايل،\nوالدفع عند الاستلام. الدفع عند الاستلام متاح للطلبات لحد 10,000 جنيه."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.0,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "Can I withdraw my wallet balance as cash?",
+      "language": "en",
+      "response": "No, you cannot withdraw your wallet balance as cash except for cash-on-delivery refunds [1].",
+      "retrieved_contexts": [
+        "The wallet holds refunds and credits. Wallet balance never expires and can be used on any\norder, but it cannot be withdrawn as cash except for cash-on-delivery refunds.",
+        "We accept credit and debit cards (Visa, Mastercard, Meeza), Souqna wallet, mobile wallets and\ncash on delivery. Cash on delivery is available for orders up to 10,000 EGP.",
+        "After the item passes inspection, refunds are issued to the original payment method.\nCard refunds take 5–10 business days to appear; wallet refunds are instant;\ncash-on-delivery orders are refunded to your Souqna wallet or by bank transfer within 7 business days.",
+        "Orders above 1,500 EGP can be paid in installments through partner banks and installment\nproviders. Available plans are shown at checkout."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "What payment methods do you accept?",
+      "language": "en",
+      "response": "We accept credit and debit cards (Visa, Mastercard, Meeza), Souqna wallet, mobile wallets, and cash on delivery. [1]",
+      "retrieved_contexts": [
+        "We accept credit and debit cards (Visa, Mastercard, Meeza), Souqna wallet, mobile wallets and\ncash on delivery. Cash on delivery is available for orders up to 10,000 EGP.",
+        "If a card payment failed but the amount was deducted, it is usually reversed automatically by\nyour bank within 7 business days. If it is not, contact support with the order number.",
+        "After the item passes inspection, refunds are issued to the original payment method.\nCard refunds take 5–10 business days to appear; wallet refunds are instant;\ncash-on-delivery orders are refunded to your Souqna wallet or by bank transfer within 7 business days.",
+        "بنقبل الكروت (فيزا، ماستركارد، ميزة)، محفظة سوقنا، المحافظ الإلكترونية على الموبايل،\nوالدفع عند الاستلام. الدفع عند الاستلام متاح للطلبات لحد 10,000 جنيه."
+      ],
+      "handed_off": false,
+      "faithfulness": 0.875,
+      "answer_relevancy": 0.9789,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "نسيت كلمة السر",
+      "language": "ar",
+      "response": "دوس \"نسيت كلمة السر\" في شاشة الدخول واكتب رقم موبايلك أو إيميلك. هيوصلك كود صالح لمدة 10 دقايق [1].",
+      "retrieved_contexts": [
+        "دوس \"نسيت كلمة السر\" في شاشة الدخول واكتب رقم موبايلك أو إيميلك. هيوصلك كود صالح لمدة 10 دقايق.",
+        "موظفين سوقنا عمرهم ما هيطلبوا منك كلمة السر أو رقم الكارت أو كود التأكيد. ادفع دايماً من جوه\nالتطبيق، ومتحوّلش فلوس لأي تاجر برّه سوقنا.",
+        "Tap \"Forgot password\" on the login screen and enter your phone number or email. You will get\na one-time code valid for 10 minutes.",
+        "لو عملية الدفع بالكارت فشلت والمبلغ اتخصم، غالباً البنك بيرجعه تلقائياً خلال 7 أيام عمل.\nلو مرجعش، كلّم خدمة العملاء برقم الطلب."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8098,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "عايز أمسح حسابي",
+      "language": "ar",
+      "response": "حذف الحساب نهائي بعده 30 يوم، وخلال المدة دي تقدر تلغى الحذف [1].",
+      "retrieved_contexts": [
+        "ادخل الإعدادات ← الحساب ← حذف الحساب. الحذف بيبقى نهائي بعد 30 يوم، وتقدر تدخل على حسابك\nخلال المدة دي عشان تلغي الحذف. الحسابات اللي عليها طلبات مفتوحة مينفعش تتحذف.",
+        "Go to Settings → Account → Delete account. Deletion is permanent after 30 days; you can log in\nduring that period to cancel it. Accounts with open orders cannot be deleted.",
+        "لو عملية الدفع بالكارت فشلت والمبلغ اتخصم، غالباً البنك بيرجعه تلقائياً خلال 7 أيام عمل.\nلو مرجعش، كلّم خدمة العملاء برقم الطلب.",
+        "موظفين سوقنا عمرهم ما هيطلبوا منك كلمة السر أو رقم الكارت أو كود التأكيد. ادفع دايماً من جوه\nالتطبيق، ومتحوّلش فلوس لأي تاجر برّه سوقنا."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.5697,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    },
+    {
+      "question": "Someone asked me for my OTP code, is that Souqna?",
+      "language": "en",
+      "response": "No, Souqna staff will never ask for your one-time code [1].",
+      "retrieved_contexts": [
+        "Souqna staff will never ask for your password, card number or one-time code. Always pay\ninside the app; never transfer money to a seller outside Souqna.",
+        "We accept credit and debit cards (Visa, Mastercard, Meeza), Souqna wallet, mobile wallets and\ncash on delivery. Cash on delivery is available for orders up to 10,000 EGP.",
+        "Tap \"Forgot password\" on the login screen and enter your phone number or email. You will get\na one-time code valid for 10 minutes.",
+        "The wallet holds refunds and credits. Wallet balance never expires and can be used on any\norder, but it cannot be withdrawn as cash except for cash-on-delivery refunds."
+      ],
+      "handed_off": false,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8235,
+      "trace": [
+        "router",
+        "retriever",
+        "generator",
+        "grounding_checker",
+        "responder"
+      ]
+    }
+  ]
+}

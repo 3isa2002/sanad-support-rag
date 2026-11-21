@@ -71,12 +71,27 @@ def test_reindex_requires_admin(client, settings):
 def test_health_and_index_page(client):
     h = client.get("/health").json()
     assert h["status"] == "ok" and h["embedder"].startswith("hash") and h["backend_reachable"] is True
+    assert h["vector_backend"] == "qdrant"
     page = client.get("/")
     assert page.status_code == 200 and "سَنَد" in page.text
 
 
 def test_create_app_builds_missing_index(settings):
     app = create_app(settings)  # wires real factory; index dir is empty → built on startup
+    try:
+        assert (settings.index_dir / "meta.json").is_file()
+        assert (settings.index_dir / "qdrant").is_dir()
+        body = TestClient(app).post("/chat", json={"message": "how much is shipping inside Cairo?"}).json()
+        assert body["sources"]
+        assert body["trace"] == ["router", "retriever", "generator", "grounding_checker", "responder"]
+    finally:
+        if hasattr(app.state.assistant.index, "close"):
+            app.state.assistant.index.close()
+
+
+def test_create_app_supports_legacy_numpy_backend(settings):
+    settings.vector_backend = "numpy"
+    app = create_app(settings)
     assert (settings.index_dir / "vectors.npy").is_file()
     body = TestClient(app).post("/chat", json={"message": "how much is shipping inside Cairo?"}).json()
     assert body["sources"]

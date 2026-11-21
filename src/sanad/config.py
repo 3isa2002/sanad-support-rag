@@ -35,6 +35,22 @@ class Settings:
     embed_model: str = field(default_factory=lambda: _env("SANAD_EMBED_MODEL", "bge-m3"))
     embedder: str = field(default_factory=lambda: _env("SANAD_EMBEDDER", "ollama"))
     llm: str = field(default_factory=lambda: _env("SANAD_LLM", "ollama"))
+    vector_backend: str = field(default_factory=lambda: _env("SANAD_VECTOR_BACKEND", "qdrant"))
+    qdrant_url: str = field(default_factory=lambda: _env("SANAD_QDRANT_URL", ""))
+    qdrant_path: Path | None = field(
+        default_factory=lambda: Path(os.environ["SANAD_QDRANT_PATH"]) if os.environ.get("SANAD_QDRANT_PATH") else None
+    )
+    qdrant_collection: str = field(default_factory=lambda: _env("SANAD_QDRANT_COLLECTION", "sanad_kb"))
+    grounding_retries: int = field(default_factory=lambda: int(_env("SANAD_GROUNDING_RETRIES", "1")))
+    strict_grounding: bool = field(
+        default_factory=lambda: _env("SANAD_STRICT_GROUNDING", "true").lower() in ("1", "true", "yes")
+    )
+    llm_grounding_check: bool = field(
+        default_factory=lambda: _env("SANAD_LLM_GROUNDING_CHECK", "false").lower() in ("1", "true", "yes")
+    )
+    ragas_model: str = field(
+        default_factory=lambda: os.environ.get("SANAD_RAGAS_MODEL") or _env("SANAD_CHAT_MODEL", "qwen2.5:7b")
+    )
     kb_dir: Path = field(default_factory=lambda: Path(_env("SANAD_KB_DIR", "data/kb")))
     index_dir: Path = field(default_factory=lambda: Path(_env("SANAD_INDEX_DIR", "data/index")))
     db_path: Path = field(default_factory=lambda: Path(_env("SANAD_DB_PATH", "data/sanad.db")))
@@ -50,6 +66,9 @@ class Settings:
     host: str = field(default_factory=lambda: _env("SANAD_HOST", "127.0.0.1"))
     port: int = field(default_factory=lambda: int(_env("SANAD_PORT", "8000")))
     llm_timeout: float = field(default_factory=lambda: float(_env("SANAD_LLM_TIMEOUT", "120")))
+
+    def effective_qdrant_path(self) -> Path:
+        return self.qdrant_path if self.qdrant_path is not None else self.index_dir / "qdrant"
 
     def effective_min_score(self, embedder_name: str) -> float:
         if self.min_score is not None:

@@ -11,7 +11,7 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from .assistant import AssistantResponse, ToolCall
+from .models import AssistantResponse, ToolCall
 from .backend import BackendClient, BackendError, NotFound
 from .messages import KIND_NAMES, msg
 from .textnorm import normalize

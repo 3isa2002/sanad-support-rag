@@ -1,4 +1,4 @@
-# Full local stack: Ollama + model pull + mock marketplace backend + Sanad.
+# Full local stack: Ollama + model pull + Qdrant Vector DB + mock marketplace backend + Sanad.
 #   docker compose up --build      → open http://localhost:8000
 # For GPU acceleration on Linux, uncomment the `deploy` block under `ollama`.
 services:
@@ -19,6 +19,11 @@ services:
     entrypoint: ["/bin/sh", "-c", "sleep 3 && ollama pull ${SANAD_CHAT_MODEL:-qwen2.5:7b} && ollama pull ${SANAD_EMBED_MODEL:-bge-m3}"]
     restart: "no"
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports: ["6333:6333"]
+    volumes: ["qdrant-data:/qdrant/storage"]
+
   mock-backend:
     build: .
     command: ["python", "-m", "mock_backend"]
@@ -34,12 +39,18 @@ services:
     depends_on:
       ollama-pull:
         condition: service_completed_successfully
+      qdrant:
+        condition: service_started
       mock-backend:
         condition: service_started
     environment:
       OLLAMA_BASE_URL: http://ollama:11434
       SANAD_CHAT_MODEL: ${SANAD_CHAT_MODEL:-qwen2.5:7b}
       SANAD_EMBED_MODEL: ${SANAD_EMBED_MODEL:-bge-m3}
+      SANAD_VECTOR_BACKEND: ${SANAD_VECTOR_BACKEND:-qdrant}
+      SANAD_QDRANT_URL: ${SANAD_QDRANT_URL:-http://qdrant:6333}
+      SANAD_QDRANT_COLLECTION: ${SANAD_QDRANT_COLLECTION:-sanad_kb}
+      SANAD_GROUNDING_RETRIES: ${SANAD_GROUNDING_RETRIES:-1}
       SANAD_BACKEND_URL: http://mock-backend:8001
       SANAD_BACKEND_API_KEY: ${SANAD_BACKEND_API_KEY:-change-me}
       SANAD_ADMIN_TOKEN: ${SANAD_ADMIN_TOKEN:-change-me}
@@ -50,4 +61,5 @@ services:
 
 volumes:
   ollama:
+  qdrant-data:
   sanad-state:
