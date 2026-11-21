@@ -178,8 +178,18 @@ sanad graph   # print compiled LangGraph Mermaid topology
 | --- | ---: | ---: | ---: | ---: | ---: |
 | **Offline (`hash:512` + `extractive`)** | `1.00` | `0.96` | `0.875` | `1.00` | `1.00` |
 | **Live Ollama (`bge-m3` + `qwen2.5:7b`)** | `1.00` | `0.92` | `0.778` | `1.00` | `1.00` |
+| **Live vLLM (`hash:512` + `sanad-qwen25-ft` LoRA on L4)** | `1.00` | `0.92` | `0.778` | `1.00` | `1.00` |
 
-> **vLLM Production Benchmark:** Use `scripts/benchmark_vllm.py` or [`notebooks/sanad_vllm_l4_benchmark.ipynb`](notebooks/sanad_vllm_l4_benchmark.ipynb) on a CUDA GPU host to measure TTFT, p50/p95 latency, output tokens/s, and peak GPU VRAM against `Qwen/Qwen2.5-7B-Instruct` (`bitsandbytes`) + `3isa2002/qwen2.5-7b-sanad-arabic-qlora`.
+**vLLM Production Throughput & VRAM Benchmark (`NVIDIA L4`, `22.03 GB` VRAM, serving `Qwen/Qwen2.5-7B-Instruct` `bitsandbytes` + `3isa2002/qwen2.5-7b-sanad-arabic-qlora` — [`data/eval/vllm_benchmark.md`](data/eval/vllm_benchmark.md)):**
+
+- **Peak GPU VRAM (`nvidia-smi`):** `19,510 / 23,034 MiB` (`VLLM::EngineCore` process `19,502 MiB` with `--gpu-memory-utilization 0.90`)
+- **End-to-End `Sanad v3` Egyptian Arabic Query Latency (`sanad ask`):** `1,318.59 ms` (LangGraph + Qdrant + vLLM LoRA, traced via `AgentTracer`)
+
+| Concurrency | Ok / Total | Req/s | Output Tokens/s | TTFT p50 (ms) | TTFT p95 (ms) | Latency p50 (ms) | Latency p95 (ms) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `1` | `6/6` | `0.996` | `37.18` | `86.93` | `89.62` | `980.32` | `1572.89` |
+| `4` | `12/12` | `2.374` | `89.61` | `138.89` | `158.64` | `1470.83` | `2973.63` |
+| `8` | `24/24` | `3.996` | **`142.20`** | `164.87` | `249.64` | `1487.52` | `2919.85` |
 
 **RAGAS Benchmark (`n=25` answerable questions, `Qdrant` + `LangGraph` + live `Ollama qwen2.5:7b` & `bge-m3` — [`data/eval/ragas_report.md`](data/eval/ragas_report.md)):**
 
@@ -262,7 +272,7 @@ sanad-support-rag/
 ├── data/
 │   ├── kb/             # Sample policies (Arabic + English)
 │   ├── mock_backend/   # Seed orders and listings
-│   └── eval/           # questions.jsonl + ragas_report.*
+│   └── eval/           # questions.jsonl + ragas_report.* + vllm_benchmark.*
 ├── tests/              # 97 pytest tests (incl. Qdrant, LangGraph, RAGAS, vLLM & Tracing)
 ├── Dockerfile, docker-compose.yml, docker-compose.gpu.yml
 └── PLAN.md
@@ -287,7 +297,7 @@ All `97` tests cover Arabic normalization, chunking, BM25, Qdrant hybrid RRF ret
 
 - [x] **v1:** Hybrid NumPy+BM25 RAG, deterministic backend tools, SQLite handoffs, FastAPI + Docker Compose.
 - [x] **v2 (Milestone 2):** Dedicated **Qdrant** hybrid vector store, stateful **LangGraph** multi-agent workflow with grounding/hallucination self-correction, and **RAGAS** benchmark.
-- [x] **v3 (Milestone 3 — core implementation):** Added OpenAI-compatible **vLLM** client (`OpenAICompatChat` + LoRA `sanad-qwen25-ft` config + Colab L4 benchmark notebook), GPU Docker (`docker-compose.gpu.yml`), **Kubernetes** Kustomize manifests (`deploy/k8s/`), and **Langfuse**/**LangSmith**/`JSONL` agent tracing (`GET /traces`, `GET /metrics`).
+- [x] **v3 (Milestone 3):** Serve the QLoRA fine-tuned Qwen model via **vLLM** (`142.20 tok/s` @ c=8, `86.93 ms` TTFT p50 @ c=1, `19.5 GB` VRAM on Colab L4), add GPU Docker (`docker-compose.gpu.yml`), **Kubernetes** Kustomize manifests (`deploy/k8s/`), and **Langfuse**/**LangSmith**/`JSONL` agent tracing.
 - [ ] Cross-encoder re-ranker (`bge-reranker-v2-m3`) & authenticated order lookups.
 
 ## License
