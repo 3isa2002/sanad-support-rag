@@ -162,3 +162,19 @@ def test_api_cors_and_private_network_preflight(tmp_path, index, embedder, hando
     assert preflight.status_code == 200
     assert preflight.headers.get("access-control-allow-origin") in ("*", "https://mohamed-eissa.pages.dev")
     assert preflight.headers.get("access-control-allow-private-network") == "true"
+
+
+def test_qdrant_build_recovers_from_corrupt_local_collection(tmp_path, embedder):
+    from sanad.kb import build_chunks
+    from sanad.qdrant_store import QdrantVectorIndex
+
+    qdrant_dir = tmp_path / "index" / "qdrant"
+    bad_col = qdrant_dir / "collection" / "sanad_kb"
+    bad_col.mkdir(parents=True)
+    # Create an invalid local Qdrant state that raises ValueError on QdrantClient(path=...)
+    (qdrant_dir / "meta.json").write_text('{"collections":{"sanad_kb":{"vectors":{"dense":{"size":1024,"distance":"Cosine"}}}}}', encoding="utf-8")
+    (bad_col / "storage.sqlite").write_bytes(b"corrupt")
+
+    idx = QdrantVectorIndex.build(build_chunks(KB_DIR), embedder, qdrant_path=qdrant_dir)
+    assert len(idx.chunks) > 0
+    idx.close()

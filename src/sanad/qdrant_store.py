@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import atexit
 import json
+import shutil
+import sqlite3
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -121,6 +123,9 @@ class QdrantVectorIndex:
             raise ValueError("No chunks to index — is the KB directory empty?")
         vectors = embedder.embed([c.embed_text() for c in chunks]).astype(np.float32)
         resolved_path = Path(qdrant_path) if qdrant_path is not None else None
+        if client is None and not in_memory and not qdrant_url and resolved_path is not None and resolved_path.exists():
+            # Wipe any stale/corrupt local Qdrant directory before QdrantLocal opens sqlite handles.
+            shutil.rmtree(resolved_path, ignore_errors=True)
         q_client = client or _build_client(
             qdrant_url=qdrant_url,
             qdrant_path=resolved_path,
@@ -386,7 +391,7 @@ def load_or_build_vector_index(settings: Any, embedder: Embedder) -> VectorIndex
     """Load the configured vector index or build and persist it from the KB."""
     try:
         return load_vector_index(settings, expected_embedder=embedder.name)
-    except (FileNotFoundError, ValueError):
+    except (FileNotFoundError, ValueError, sqlite3.Error):
         index = build_vector_index(settings, build_chunks(settings.kb_dir), embedder)
         save_vector_index(index, settings.index_dir)
         return index

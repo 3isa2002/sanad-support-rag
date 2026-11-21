@@ -39,11 +39,22 @@ if errorlevel 1 (
 if not exist "data\index\qdrant" (
     echo [3/4] Indexing knowledge base into Qdrant using Ollama bge-m3...
     "%VENV_SANAD%" ingest
+    if errorlevel 1 (
+        echo [ERROR] sanad ingest failed. Check Ollama status above.
+        pause
+        exit /b 1
+    )
 ) else (
     echo [3/4] Qdrant index found at data\index\qdrant.
 )
 
 echo [4/4] Starting Sanad v3 server on http://127.0.0.1:8000 ...
-echo Open http://127.0.0.1:8000 OR connect https://mohamed-eissa.pages.dev/projects/sanad to http://127.0.0.1:8000
-start "" "http://127.0.0.1:8000"
+echo Keep this window open during your interview.
+echo Connect https://mohamed-eissa.pages.dev/projects/sanad (Live Backend) OR open http://127.0.0.1:8000
+start "Open Sanad Browser" /min cmd /c "for /L %%i in (1,1,25) do (timeout /t 1 /nobreak >nul & "%VENV_PY%" -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=1)" >nul 2>&1 && (start "" "http://127.0.0.1:8000" & exit /b 0))"
 "%VENV_SANAD%" serve --host 127.0.0.1 --port 8000
+if errorlevel 1 (
+    echo.
+    echo [ERROR] Sanad server exited with an error.
+    pause
+)
